@@ -1,0 +1,2337 @@
+asyncapi: 3.0.0
+# The event is identified by the single key inside `events` (a URI), not by a field value. The generator
+# currently supports header, body and composite identifiers that read a value at a path; "body-key" is the
+# proposed mode that reads the key of the object at `path`. See sanitations.md.
+x-ballerina-event-identifier:
+  type: body-key
+  path: events
+# Deliveries carry `x-hub-signature: sha256=<hex>`, an HMAC-SHA256 of the raw body keyed with the webhook secret.
+x-ballerina-auth:
+  header: x-hub-signature
+  signature:
+    algorithm: sha256
+    encoding: hex
+    headerFormat: "sha256=$signature"
+    input: "$body"
+info:
+  title: WSO2 Identity Platform Webhooks
+  version: 1.0.0
+  description: >-
+    Webhook events emitted by Asgardeo and WSO2 Identity Server. Each delivery is a Security Event Token (RFC 8417)
+    claim set sent as JSON over HTTP POST, with one event per delivery under `events`. Subscriptions are verified with a
+    WebSub GET handshake (`hub.challenge`) before delivery starts.
+  externalDocs:
+    description: Webhook events and payloads
+    url: https://is.docs.wso2.com/en/next/guides/webhooks/webhook-events-and-payloads/
+defaultContentType: application/json
+channels:
+  login:
+    address: /
+    description: Events in the login category.
+    messages:
+      loginSuccess:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/login/event-type/loginSuccess
+        x-ballerina-event-label: LoginSuccess
+        summary: Login success.
+        payload:
+          $ref: '#/components/schemas/LoginSuccessEvent'
+      loginFailed:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/login/event-type/loginFailed
+        x-ballerina-event-label: LoginFailed
+        summary: Login failed.
+        payload:
+          $ref: '#/components/schemas/LoginFailedEvent'
+    bindings:
+      http:
+        method: POST
+  registration:
+    address: /
+    description: Events in the registration category.
+    messages:
+      registrationSuccess:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/registration/event-type/registrationSuccess
+        x-ballerina-event-label: RegistrationSuccess
+        summary: Registration success.
+        payload:
+          $ref: '#/components/schemas/RegistrationSuccessEvent'
+      registrationFailed:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/registration/event-type/registrationFailed
+        x-ballerina-event-label: RegistrationFailed
+        summary: Registration failed.
+        payload:
+          $ref: '#/components/schemas/RegistrationFailedEvent'
+    bindings:
+      http:
+        method: POST
+  token:
+    address: /
+    description: Events in the token category.
+    messages:
+      accessTokenIssued:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/token/event-type/accessTokenIssued
+        x-ballerina-event-label: AccessTokenIssued
+        summary: Access token issued.
+        payload:
+          $ref: '#/components/schemas/AccessTokenIssuedEvent'
+      accessTokenRevoked:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/token/event-type/accessTokenRevoked
+        x-ballerina-event-label: AccessTokenRevoked
+        summary: Access token revoked.
+        payload:
+          $ref: '#/components/schemas/AccessTokenRevokedEvent'
+    bindings:
+      http:
+        method: POST
+  session:
+    address: /
+    description: Events in the session category.
+    messages:
+      sessionEstablished:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/session/event-type/sessionEstablished
+        x-ballerina-event-label: SessionEstablished
+        summary: Session established.
+        payload:
+          $ref: '#/components/schemas/SessionEstablishedEvent'
+      sessionPresented:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/session/event-type/sessionPresented
+        x-ballerina-event-label: SessionPresented
+        summary: Session presented.
+        payload:
+          $ref: '#/components/schemas/SessionPresentedEvent'
+      sessionRevoked:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/session/event-type/sessionRevoked
+        x-ballerina-event-label: SessionRevoked
+        summary: Session revoked.
+        payload:
+          $ref: '#/components/schemas/SessionRevokedEvent'
+    bindings:
+      http:
+        method: POST
+  credential:
+    address: /
+    description: Events in the credential category.
+    messages:
+      credentialUpdated:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/credential/event-type/credentialUpdated
+        x-ballerina-event-label: CredentialUpdated
+        summary: Credential updated.
+        payload:
+          $ref: '#/components/schemas/CredentialUpdatedEvent'
+    bindings:
+      http:
+        method: POST
+  user:
+    address: /
+    description: Events in the user category.
+    messages:
+      userCreated:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/user/event-type/userCreated
+        x-ballerina-event-label: UserCreated
+        summary: User created.
+        payload:
+          $ref: '#/components/schemas/UserCreatedEvent'
+      userProfileUpdated:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/user/event-type/userProfileUpdated
+        x-ballerina-event-label: UserProfileUpdated
+        summary: User profile updated.
+        payload:
+          $ref: '#/components/schemas/UserProfileUpdatedEvent'
+      userDisabled:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/user/event-type/userDisabled
+        x-ballerina-event-label: UserDisabled
+        summary: User disabled.
+        payload:
+          $ref: '#/components/schemas/UserDisabledEvent'
+      userEnabled:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/user/event-type/userEnabled
+        x-ballerina-event-label: UserEnabled
+        summary: User enabled.
+        payload:
+          $ref: '#/components/schemas/UserEnabledEvent'
+      userAccountLocked:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/user/event-type/userAccountLocked
+        x-ballerina-event-label: UserAccountLocked
+        summary: User account locked.
+        payload:
+          $ref: '#/components/schemas/UserAccountLockedEvent'
+      userAccountUnlocked:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/user/event-type/userAccountUnlocked
+        x-ballerina-event-label: UserAccountUnlocked
+        summary: User account unlocked.
+        payload:
+          $ref: '#/components/schemas/UserAccountUnlockedEvent'
+      userDeleted:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/user/event-type/userDeleted
+        x-ballerina-event-label: UserDeleted
+        summary: User deleted.
+        payload:
+          $ref: '#/components/schemas/UserDeletedEvent'
+    bindings:
+      http:
+        method: POST
+  consent:
+    address: /
+    description: Events in the consent category.
+    messages:
+      consentAdded:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/consent/event-type/consentAdded
+        x-ballerina-event-label: ConsentAdded
+        summary: Consent added.
+        payload:
+          $ref: '#/components/schemas/ConsentAddedEvent'
+      consentRevoked:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/consent/event-type/consentRevoked
+        x-ballerina-event-label: ConsentRevoked
+        summary: Consent revoked.
+        payload:
+          $ref: '#/components/schemas/ConsentRevokedEvent'
+    bindings:
+      http:
+        method: POST
+  consentPurpose:
+    address: /
+    description: Events in the consent-purpose category.
+    messages:
+      purposeVersionAdded:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/consent-purpose/event-type/purposeVersionAdded
+        x-ballerina-event-label: PurposeVersionAdded
+        summary: Purpose version added.
+        payload:
+          $ref: '#/components/schemas/PurposeVersionAddedEvent'
+    bindings:
+      http:
+        method: POST
+  role:
+    address: /
+    description: Events in the role category.
+    messages:
+      roleCreated:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/role/event-type/roleCreated
+        x-ballerina-event-label: RoleCreated
+        summary: Role created.
+        payload:
+          $ref: '#/components/schemas/RoleCreatedEvent'
+      roleMetaUpdated:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/role/event-type/roleMetaUpdated
+        x-ballerina-event-label: RoleMetaUpdated
+        summary: Role metadata updated.
+        payload:
+          $ref: '#/components/schemas/RoleMetaUpdatedEvent'
+      roleDeleted:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/role/event-type/roleDeleted
+        x-ballerina-event-label: RoleDeleted
+        summary: Role deleted.
+        payload:
+          $ref: '#/components/schemas/RoleDeletedEvent'
+      roleUsersUpdated:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/role/event-type/roleUsersUpdated
+        x-ballerina-event-label: RoleUsersUpdated
+        summary: Role users updated.
+        payload:
+          $ref: '#/components/schemas/RoleUsersUpdatedEvent'
+      roleGroupsUpdated:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/role/event-type/roleGroupsUpdated
+        x-ballerina-event-label: RoleGroupsUpdated
+        summary: Role groups updated.
+        payload:
+          $ref: '#/components/schemas/RoleGroupsUpdatedEvent'
+      roleIdpGroupsUpdated:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/role/event-type/roleIdpGroupsUpdated
+        x-ballerina-event-label: RoleIdpGroupsUpdated
+        summary: Role IdP groups updated.
+        payload:
+          $ref: '#/components/schemas/RoleIdpGroupsUpdatedEvent'
+      rolePermissionsUpdated:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/role/event-type/rolePermissionsUpdated
+        x-ballerina-event-label: RolePermissionsUpdated
+        summary: Role permissions updated.
+        payload:
+          $ref: '#/components/schemas/RolePermissionsUpdatedEvent'
+    bindings:
+      http:
+        method: POST
+operations:
+  login:
+    action: receive
+    channel:
+      $ref: '#/channels/login'
+    messages:
+      - $ref: '#/channels/login/messages/loginSuccess'
+      - $ref: '#/channels/login/messages/loginFailed'
+  registration:
+    action: receive
+    channel:
+      $ref: '#/channels/registration'
+    messages:
+      - $ref: '#/channels/registration/messages/registrationSuccess'
+      - $ref: '#/channels/registration/messages/registrationFailed'
+  token:
+    action: receive
+    channel:
+      $ref: '#/channels/token'
+    messages:
+      - $ref: '#/channels/token/messages/accessTokenIssued'
+      - $ref: '#/channels/token/messages/accessTokenRevoked'
+  session:
+    action: receive
+    channel:
+      $ref: '#/channels/session'
+    messages:
+      - $ref: '#/channels/session/messages/sessionEstablished'
+      - $ref: '#/channels/session/messages/sessionPresented'
+      - $ref: '#/channels/session/messages/sessionRevoked'
+  credential:
+    action: receive
+    channel:
+      $ref: '#/channels/credential'
+    messages:
+      - $ref: '#/channels/credential/messages/credentialUpdated'
+  user:
+    action: receive
+    channel:
+      $ref: '#/channels/user'
+    messages:
+      - $ref: '#/channels/user/messages/userCreated'
+      - $ref: '#/channels/user/messages/userProfileUpdated'
+      - $ref: '#/channels/user/messages/userDisabled'
+      - $ref: '#/channels/user/messages/userEnabled'
+      - $ref: '#/channels/user/messages/userAccountLocked'
+      - $ref: '#/channels/user/messages/userAccountUnlocked'
+      - $ref: '#/channels/user/messages/userDeleted'
+  consent:
+    action: receive
+    channel:
+      $ref: '#/channels/consent'
+    messages:
+      - $ref: '#/channels/consent/messages/consentAdded'
+      - $ref: '#/channels/consent/messages/consentRevoked'
+  consentPurpose:
+    action: receive
+    channel:
+      $ref: '#/channels/consentPurpose'
+    messages:
+      - $ref: '#/channels/consentPurpose/messages/purposeVersionAdded'
+  role:
+    action: receive
+    channel:
+      $ref: '#/channels/role'
+    messages:
+      - $ref: '#/channels/role/messages/roleCreated'
+      - $ref: '#/channels/role/messages/roleMetaUpdated'
+      - $ref: '#/channels/role/messages/roleDeleted'
+      - $ref: '#/channels/role/messages/roleUsersUpdated'
+      - $ref: '#/channels/role/messages/roleGroupsUpdated'
+      - $ref: '#/channels/role/messages/roleIdpGroupsUpdated'
+      - $ref: '#/channels/role/messages/rolePermissionsUpdated'
+components:
+  schemas:
+    InitiatorType:
+      type: string
+      description: Indicates the persona who initiates the identity flow.
+    Action:
+      type: string
+      description: Indicates the related identity flow.
+    InitiatorIpAddress:
+      type: string
+      description: Indicates the IP address of the initiator that triggered the event.
+      example: 203.0.113.10
+    Claim:
+      type: object
+      required:
+        - uri
+        - value
+      properties:
+        uri:
+          type: string
+          description: Local claim uri name. E.g., http://wso2.org/claims/username
+          example: http://wso2.org/claims/username
+        value:
+          description: Claim value. Either a single value or an array of values for multi-valued claims.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+          example: peter@aol.com
+    User:
+      type: object
+      description: Information of the user interacting in the related event.
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the user.
+          example: d4002616-f00c-49d5-b9b7-63b063819049
+        claims:
+          type: array
+          description: Claim values of the user.
+          items:
+            $ref: '#/components/schemas/Claim'
+        organization:
+          description: The organization the user belongs to (the user's resident organization).
+          allOf:
+            - $ref: '#/components/schemas/Organization'
+        ref:
+          type: string
+          description: SCIM 2.0 resource URL for the user.
+    ProfileUpdatedUser:
+      description: Contains information about the user whose profile updated.
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the user.
+          example: d4002616-f00c-49d5-b9b7-63b063819049
+        organization:
+          description: The organization the user belongs to (the user's resident organization).
+          allOf:
+            - $ref: '#/components/schemas/Organization'
+        addedClaims:
+          type: array
+          description: Claims added to the user's profile during the update.
+          items:
+            $ref: '#/components/schemas/Claim'
+        updatedClaims:
+          type: array
+          description: Claims whose values changed during the update.
+          items:
+            $ref: '#/components/schemas/Claim'
+        removedClaims:
+          type: array
+          description: Claims removed from the user's profile during the update.
+          items:
+            type: object
+            properties:
+              uri:
+                type: string
+                description: Local claim uri name. E.g., http://wso2.org/claims/username
+                example: http://wso2.org/claims/username
+        ref:
+          type: string
+          description: SCIM 2.0 resource URL for the user.
+    Tenant:
+      type: object
+      description: Root organization (tenant).
+      properties:
+        id:
+          type: string
+          description: The unique numeric identifier of the tenant.
+          example: '12402'
+        name:
+          type: string
+          description: The domain name of the tenant.
+          example: myorg
+    Organization:
+      type: object
+      description: The organization under which the event is processed.
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the organization.
+          example: 6f8d17ae-1ad5-441b-b9e0-c7731e739e94
+        name:
+          type: string
+          description: Name of the organization.
+          example: myorg
+        orgHandle:
+          type: string
+          description: Unique, human-readable handle of the organization.
+          example: myorg
+        depth:
+          type: integer
+          description: The depth of the organization in the hierarchy.
+          example: 0
+    UserStore:
+      type: object
+      description: User store managing the user's data.
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the user store.
+          example: UFJJTUFSWQ==
+        name:
+          type: string
+          description: >-
+            User store name used to identify the user store in configuration settings, user interfaces, and
+            administrative tasks.
+          example: PRIMARY
+    Application:
+      type: object
+      description: Information about an application.
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the application.
+          example: 40d982e5-23be-4ee1-8540-9cb696d8c321
+        name:
+          type: string
+          description: Name of the application.
+          example: MyApp
+    Session:
+      type: object
+      description: Information about the session.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the session
+          example: 68d1f2861461c69d8e821d91839bbf8e23ef04fb96c1ac655f452d94d1fd6e4d
+        loginTime:
+          type: integer
+          description: Timestamp when the session originally started.
+          example: 1755541960025
+        applications:
+          type: array
+          description: Array of applications associated with this session.
+          items:
+            $ref: '#/components/schemas/Application'
+    AccessToken:
+      type: object
+      description: Details about the issued token.
+      properties:
+        tokenType:
+          type: string
+          description: e.g. `Opaque` or `jwt`.
+          example: Opaque
+        iat:
+          type: string
+          description: Token issued at timestamp.
+          example: '1755541962069'
+        grantType:
+          type: string
+          description: OAuth2 grant type used for token issuance (e.g., `authorization_code`)
+          example: authorization_code
+    Reason:
+      type: object
+      description: Context information for the failure.
+      properties:
+        description:
+          type: string
+          description: Human-readable explanation of the failure.
+          example: User authentication failed due to invalid credentials
+        context:
+          type: object
+          description: Details about the failure point in the related identity flow.
+          properties:
+            failedStep:
+              type: object
+              description: Details about the failure step in the authentication flow.
+              properties:
+                step:
+                  type: integer
+                  example: 1
+                  description: Step number where the failure occurred
+                idp:
+                  type: string
+                  example: LOCAL
+                  description: Identity Provider (IdP) involved in the failure
+                authenticator:
+                  type: string
+                  example: BasicAuthenticator
+                  description: Authenticator used.
+    Consent:
+      type: object
+      description: Contains details about the consent.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the consent record.
+          example: 501a6ba7-0b15-4ae6-9642-03b5267ab996
+        subjectId:
+          type: string
+          description: Username of the user to whom the consent applies.
+          example: peter
+        state:
+          type: string
+          description: Current state of the consent.
+          example: APPROVED
+        serviceId:
+          type: string
+          description: The service or application for which the consent is granted.
+          example: Resident IDP
+        purpose:
+          type: object
+          description: Details of the consent purpose.
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the consent purpose.
+              example: 909eea3e-5bf1-4106-a5b8-44580fc4ae74
+            name:
+              type: string
+              description: Human-readable name of the consent purpose.
+              example: Marketing Consent
+            version:
+              type: string
+              description: The UUID of the specific purpose version the user consented to.
+              example: 12a53d28-4536-4201-939e-5e5c00eadf7b
+            elements:
+              type: array
+              description: Array of PII categories covered by the consent, each with a name.
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: Policy
+    PurposeVersion:
+      type: object
+      description: Contains details about the updated consent purpose.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the consent purpose.
+          example: 909eea3e-5bf1-4106-a5b8-44580fc4ae74
+        name:
+          type: string
+          description: Human-readable name of the consent purpose.
+          example: Marketing Consent
+        version:
+          type: object
+          description: Details of the newly added version.
+          properties:
+            version:
+              type: string
+              description: The version number of the new version.
+              example: '2'
+            setAsLatest:
+              type: boolean
+              description: Whether this version becomes the active version for new consents.
+              example: true
+            elements:
+              type: array
+              description: Array of attributes (elements) included in this version, each with a name and mandatory flag.
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: Policy
+                  mandatory:
+                    type: boolean
+                    example: false
+    EventData_LoginSuccess:
+      title: Login success
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/login/event-type/loginSuccess
+      properties:
+        https://schemas.identity.wso2.org/events/login/event-type/loginSuccess:
+          $ref: '#/components/schemas/LoginSuccessPayload'
+    EventData_LoginFailed:
+      title: Login failed
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/login/event-type/loginFailed
+      properties:
+        https://schemas.identity.wso2.org/events/login/event-type/loginFailed:
+          $ref: '#/components/schemas/LoginFailedPayload'
+    EventData_RegistrationSuccess:
+      title: Registration success
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/registration/event-type/registrationSuccess
+      properties:
+        https://schemas.identity.wso2.org/events/registration/event-type/registrationSuccess:
+          $ref: '#/components/schemas/RegistrationSuccessPayload'
+    EventData_RegistrationFailed:
+      title: Registration failed
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/registration/event-type/registrationFailed
+      properties:
+        https://schemas.identity.wso2.org/events/registration/event-type/registrationFailed:
+          $ref: '#/components/schemas/RegistrationFailedPayload'
+    EventData_AccessTokenIssued:
+      title: Access token issued
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/token/event-type/accessTokenIssued
+      properties:
+        https://schemas.identity.wso2.org/events/token/event-type/accessTokenIssued:
+          $ref: '#/components/schemas/AccessTokenIssuedPayload'
+    EventData_AccessTokenRevoked:
+      title: Access token revoked
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/token/event-type/accessTokenRevoked
+      properties:
+        https://schemas.identity.wso2.org/events/token/event-type/accessTokenRevoked:
+          $ref: '#/components/schemas/AccessTokenRevokedPayload'
+    EventData_SessionEstablished:
+      title: Session established
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/session/event-type/sessionEstablished
+      properties:
+        https://schemas.identity.wso2.org/events/session/event-type/sessionEstablished:
+          $ref: '#/components/schemas/SessionEstablishedPayload'
+    EventData_SessionPresented:
+      title: Session presented
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/session/event-type/sessionPresented
+      properties:
+        https://schemas.identity.wso2.org/events/session/event-type/sessionPresented:
+          $ref: '#/components/schemas/SessionPresentedPayload'
+    EventData_SessionRevoked:
+      title: Session revoked
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/session/event-type/sessionRevoked
+      properties:
+        https://schemas.identity.wso2.org/events/session/event-type/sessionRevoked:
+          $ref: '#/components/schemas/SessionRevokedPayload'
+    EventData_CredentialUpdated:
+      title: Credential updated
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/credential/event-type/credentialUpdated
+      properties:
+        https://schemas.identity.wso2.org/events/credential/event-type/credentialUpdated:
+          $ref: '#/components/schemas/CredentialUpdatedPayload'
+    EventData_UserCreated:
+      title: User created
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/user/event-type/userCreated
+      properties:
+        https://schemas.identity.wso2.org/events/user/event-type/userCreated:
+          $ref: '#/components/schemas/UserCreatedPayload'
+    EventData_UserProfileUpdated:
+      title: User profile updated
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/user/event-type/userProfileUpdated
+      properties:
+        https://schemas.identity.wso2.org/events/user/event-type/userProfileUpdated:
+          $ref: '#/components/schemas/UserProfileUpdatedPayload'
+    EventData_UserDisabled:
+      title: User disabled
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/user/event-type/userDisabled
+      properties:
+        https://schemas.identity.wso2.org/events/user/event-type/userDisabled:
+          $ref: '#/components/schemas/UserDisabledPayload'
+    EventData_UserEnabled:
+      title: User enabled
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/user/event-type/userEnabled
+      properties:
+        https://schemas.identity.wso2.org/events/user/event-type/userEnabled:
+          $ref: '#/components/schemas/UserEnabledPayload'
+    EventData_UserAccountLocked:
+      title: User account locked
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/user/event-type/userAccountLocked
+      properties:
+        https://schemas.identity.wso2.org/events/user/event-type/userAccountLocked:
+          $ref: '#/components/schemas/UserAccountLockedPayload'
+    EventData_UserAccountUnlocked:
+      title: User account unlocked
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/user/event-type/userAccountUnlocked
+      properties:
+        https://schemas.identity.wso2.org/events/user/event-type/userAccountUnlocked:
+          $ref: '#/components/schemas/UserAccountUnlockedPayload'
+    EventData_UserDeleted:
+      title: User deleted
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/user/event-type/userDeleted
+      properties:
+        https://schemas.identity.wso2.org/events/user/event-type/userDeleted:
+          $ref: '#/components/schemas/UserDeletedPayload'
+    EventData_ConsentAdded:
+      title: Consent added
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/consent/event-type/consentAdded
+      properties:
+        https://schemas.identity.wso2.org/events/consent/event-type/consentAdded:
+          $ref: '#/components/schemas/ConsentAddedPayload'
+    EventData_ConsentRevoked:
+      title: Consent revoked
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/consent/event-type/consentRevoked
+      properties:
+        https://schemas.identity.wso2.org/events/consent/event-type/consentRevoked:
+          $ref: '#/components/schemas/ConsentRevokedPayload'
+    EventData_PurposeVersionAdded:
+      title: Purpose version added
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/consent-purpose/event-type/purposeVersionAdded
+      properties:
+        https://schemas.identity.wso2.org/events/consent-purpose/event-type/purposeVersionAdded:
+          $ref: '#/components/schemas/PurposeVersionAddedPayload'
+    RoleAudience:
+      type: object
+      description: The audience the role is scoped to.
+      properties:
+        type:
+          type: string
+          description: The audience type. Either `organization` or `application`.
+          example: application
+        value:
+          type: string
+          description: >-
+            Identifier of the audience. The organization id for an organization-scoped role, or the application id for
+            an application-scoped role.
+          example: 6db0975b-9f7c-42d1-a8b4-895a77d23cff
+        display:
+          type: string
+          description: >-
+            Display name of the audience. The organization name for an organization-scoped role, or the application name
+            for an application-scoped role.
+          example: Sample Application
+    RoleUser:
+      type: object
+      description: A user assigned to or unassigned from the role.
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the user.
+          example: 6c7f23d9-8083-4bf7-ab2c-885aa9faa186
+        userStoreDomain:
+          type: string
+          description: The user store domain the user belongs to.
+          example: PRIMARY
+        claims:
+          type: array
+          description: Claim values of the user.
+          items:
+            $ref: '#/components/schemas/Claim'
+    RoleGroup:
+      type: object
+      description: A local group assigned to or unassigned from the role.
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the group.
+          example: da2aeb94-aebf-4846-b611-1865cf85aea5
+        groupName:
+          type: string
+          description: Name of the group.
+          example: sales
+        userStoreDomain:
+          type: string
+          description: The user store domain the group belongs to.
+          example: PRIMARY
+    RoleIdpGroup:
+      type: object
+      description: A federated identity provider (IdP) group assigned to or unassigned from the role.
+      properties:
+        groupId:
+          type: string
+          description: Unique identifier of the IdP group.
+          example: 7ae41d10-e4a1-4ed8-adc2-8644872b8783
+        groupName:
+          type: string
+          description: Name of the IdP group.
+          example: idpgroup1
+        idpId:
+          type: string
+          description: Unique identifier of the identity provider.
+          example: 8ef35e33-b4dc-444f-8d71-3ff32e44cca9
+        idpName:
+          type: string
+          description: Name of the identity provider.
+          example: IDP
+    EventData_RoleCreated:
+      title: Role created
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/role/event-type/roleCreated
+      properties:
+        https://schemas.identity.wso2.org/events/role/event-type/roleCreated:
+          $ref: '#/components/schemas/RoleCreatedPayload'
+    EventData_RoleMetaUpdated:
+      title: Role metadata updated
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/role/event-type/roleMetaUpdated
+      properties:
+        https://schemas.identity.wso2.org/events/role/event-type/roleMetaUpdated:
+          $ref: '#/components/schemas/RoleMetaUpdatedPayload'
+    EventData_RoleDeleted:
+      title: Role deleted
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/role/event-type/roleDeleted
+      properties:
+        https://schemas.identity.wso2.org/events/role/event-type/roleDeleted:
+          $ref: '#/components/schemas/RoleDeletedPayload'
+    EventData_RoleUsersUpdated:
+      title: Role users updated
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/role/event-type/roleUsersUpdated
+      properties:
+        https://schemas.identity.wso2.org/events/role/event-type/roleUsersUpdated:
+          $ref: '#/components/schemas/RoleUsersUpdatedPayload'
+    EventData_RoleGroupsUpdated:
+      title: Role groups updated
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/role/event-type/roleGroupsUpdated
+      properties:
+        https://schemas.identity.wso2.org/events/role/event-type/roleGroupsUpdated:
+          $ref: '#/components/schemas/RoleGroupsUpdatedPayload'
+    EventData_RoleIdpGroupsUpdated:
+      title: Role IdP groups updated
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/role/event-type/roleIdpGroupsUpdated
+      properties:
+        https://schemas.identity.wso2.org/events/role/event-type/roleIdpGroupsUpdated:
+          $ref: '#/components/schemas/RoleIdpGroupsUpdatedPayload'
+    EventData_RolePermissionsUpdated:
+      title: Role permissions updated
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/role/event-type/rolePermissionsUpdated
+      properties:
+        https://schemas.identity.wso2.org/events/role/event-type/rolePermissionsUpdated:
+          $ref: '#/components/schemas/RolePermissionsUpdatedPayload'
+    LoginSuccessPayload:
+      type: object
+      properties:
+        initiatorType:
+          type: string
+          description: Indicates the persona who initiates the identity flow. E.g., `USER`
+        action:
+          type: string
+          description: Indicates the related identity flow. E.g., `LOGIN`
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        application:
+          description: Information about the application that initiated the login.
+          allOf:
+            - $ref: '#/components/schemas/Application'
+        authenticationMethods:
+          type: array
+          description: An array of authentication methods used for the successful login (for example `BasicAuthenticator`).
+          items:
+            type: string
+          example:
+            - BasicAuthenticator
+    LoginFailedPayload:
+      type: object
+      properties:
+        initiatorType:
+          type: string
+          description: Indicates the persona who initiates the identity flow. E.g., `USER`
+        action:
+          type: string
+          description: Indicates the related identity flow. E.g., `LOGIN`
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        application:
+          description: Information about the application that initiated the login.
+          allOf:
+            - $ref: '#/components/schemas/Application'
+        reason:
+          $ref: '#/components/schemas/Reason'
+    RegistrationSuccessPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        action:
+          $ref: '#/components/schemas/Action'
+    RegistrationFailedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        action:
+          $ref: '#/components/schemas/Action'
+        reason:
+          $ref: '#/components/schemas/Reason'
+    AccessTokenIssuedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        action:
+          $ref: '#/components/schemas/Action'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        application:
+          type: object
+          description: Information about the application that requested the token.
+          properties:
+            name:
+              type: string
+              description: Name of the application.
+              example: Test App
+            consumerKey:
+              type: string
+              description: Consumer key of the application.
+              example: eaSbhGeDL7ek2ypVrb0h4ZYMSN0a
+        accessToken:
+          $ref: '#/components/schemas/AccessToken'
+    AccessTokenRevokedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        action:
+          $ref: '#/components/schemas/Action'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        applications:
+          type: array
+          description: Applications associated with the revoked token.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Unique identifier of the application.
+                example: eb395ddd-1280-46e9-98fb-810948c1dab4
+              name:
+                type: string
+                description: Name of the application.
+                example: Test App
+              consumerKey:
+                type: string
+                description: Consumer key of the application.
+                example: eaSbhGeDL7ek2ypVrb0h4ZYMSN0a
+    SessionEstablishedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        action:
+          $ref: '#/components/schemas/Action'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        application:
+          description: Information about the application through which the session gets established.
+          allOf:
+            - $ref: '#/components/schemas/Application'
+        session:
+          $ref: '#/components/schemas/Session'
+    SessionPresentedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        action:
+          $ref: '#/components/schemas/Action'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        application:
+          description: Information about the application that requested the session presentation.
+          allOf:
+            - $ref: '#/components/schemas/Application'
+        session:
+          $ref: '#/components/schemas/Session'
+    SessionRevokedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        action:
+          $ref: '#/components/schemas/Action'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        sessions:
+          type: array
+          description: Array of revoked sessions.
+          items:
+            $ref: '#/components/schemas/Session'
+    CredentialUpdatedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        credentialType:
+          type: string
+          description: Indicates which credential the user updates (e.g., `PASSWORD`).
+        action:
+          $ref: '#/components/schemas/Action'
+    UserCreatedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        action:
+          $ref: '#/components/schemas/Action'
+    UserProfileUpdatedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/ProfileUpdatedUser'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        action:
+          $ref: '#/components/schemas/Action'
+    UserDisabledPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        action:
+          $ref: '#/components/schemas/Action'
+    UserEnabledPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        action:
+          $ref: '#/components/schemas/Action'
+    UserAccountLockedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        action:
+          $ref: '#/components/schemas/Action'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+    UserAccountUnlockedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        action:
+          $ref: '#/components/schemas/Action'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+    UserDeletedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        action:
+          $ref: '#/components/schemas/Action'
+    ConsentAddedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        action:
+          $ref: '#/components/schemas/Action'
+        consent:
+          $ref: '#/components/schemas/Consent'
+    ConsentRevokedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        user:
+          $ref: '#/components/schemas/User'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        userStore:
+          $ref: '#/components/schemas/UserStore'
+        action:
+          $ref: '#/components/schemas/Action'
+        consent:
+          $ref: '#/components/schemas/Consent'
+    PurposeVersionAddedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        action:
+          $ref: '#/components/schemas/Action'
+        purpose:
+          $ref: '#/components/schemas/PurposeVersion'
+    RoleCreatedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        action:
+          $ref: '#/components/schemas/Action'
+        role:
+          type: object
+          description: Contains details about the created role.
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the role.
+              example: 1fad5996-3418-4883-925d-a319e3bb8e72
+            name:
+              type: string
+              description: Display name of the role.
+              example: ROLE
+            audience:
+              $ref: '#/components/schemas/RoleAudience'
+            ref:
+              type: string
+              description: SCIM v2 reference URL for the role.
+            users:
+              type: array
+              description: Users assigned to the role at creation. Present only when the role is created with users.
+              items:
+                $ref: '#/components/schemas/RoleUser'
+            groups:
+              type: array
+              description: Local groups assigned to the role at creation. Present only when the role is created with groups.
+              items:
+                $ref: '#/components/schemas/RoleGroup'
+            permissions:
+              type: array
+              description: >-
+                Permission names granted to the role at creation. Present only when the role is created with
+                permissions.
+              items:
+                type: string
+                example: internal_session_view
+    RoleMetaUpdatedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        action:
+          $ref: '#/components/schemas/Action'
+        role:
+          type: object
+          description: Contains details about the updated role.
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the role.
+              example: 1fad5996-3418-4883-925d-a319e3bb8e72
+            name:
+              type: string
+              description: Display name of the role.
+              example: ROLE
+            audience:
+              $ref: '#/components/schemas/RoleAudience'
+            ref:
+              type: string
+              description: SCIM v2 reference URL for the role.
+    RoleDeletedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        action:
+          $ref: '#/components/schemas/Action'
+        role:
+          type: object
+          description: Contains details about the deleted role.
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the role.
+              example: 1fad5996-3418-4883-925d-a319e3bb8e72
+            name:
+              type: string
+              description: Display name of the role.
+              example: ROLE
+            audience:
+              $ref: '#/components/schemas/RoleAudience'
+    RoleUsersUpdatedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        action:
+          $ref: '#/components/schemas/Action'
+        role:
+          type: object
+          description: Contains details about the role whose user assignments got updated.
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the role.
+              example: 1fad5996-3418-4883-925d-a319e3bb8e72
+            name:
+              type: string
+              description: Display name of the role.
+              example: ROLE
+            audience:
+              $ref: '#/components/schemas/RoleAudience'
+            ref:
+              type: string
+              description: SCIM v2 reference URL for the role.
+            addedUsers:
+              type: array
+              description: Users assigned to the role in this update.
+              items:
+                $ref: '#/components/schemas/RoleUser'
+            removedUsers:
+              type: array
+              description: Users unassigned from the role in this update.
+              items:
+                $ref: '#/components/schemas/RoleUser'
+    RoleGroupsUpdatedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        action:
+          $ref: '#/components/schemas/Action'
+        role:
+          type: object
+          description: Contains details about the role whose group assignments got updated.
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the role.
+              example: 1fad5996-3418-4883-925d-a319e3bb8e72
+            name:
+              type: string
+              description: Display name of the role.
+              example: ROLE
+            audience:
+              $ref: '#/components/schemas/RoleAudience'
+            ref:
+              type: string
+              description: SCIM v2 reference URL for the role.
+            addedGroups:
+              type: array
+              description: Local groups assigned to the role in this update.
+              items:
+                $ref: '#/components/schemas/RoleGroup'
+            removedGroups:
+              type: array
+              description: Local groups unassigned from the role in this update.
+              items:
+                $ref: '#/components/schemas/RoleGroup'
+    RoleIdpGroupsUpdatedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        action:
+          $ref: '#/components/schemas/Action'
+        role:
+          type: object
+          description: Contains details about the role whose IdP group assignments got updated.
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the role.
+              example: 1fad5996-3418-4883-925d-a319e3bb8e72
+            name:
+              type: string
+              description: Display name of the role.
+              example: ROLE
+            audience:
+              $ref: '#/components/schemas/RoleAudience'
+            ref:
+              type: string
+              description: SCIM v2 reference URL for the role.
+            addedIdpGroups:
+              type: array
+              description: Federated IdP groups assigned to the role in this update.
+              items:
+                $ref: '#/components/schemas/RoleIdpGroup'
+            removedIdpGroups:
+              type: array
+              description: Federated IdP groups unassigned from the role in this update.
+              items:
+                $ref: '#/components/schemas/RoleIdpGroup'
+    RolePermissionsUpdatedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        action:
+          $ref: '#/components/schemas/Action'
+        role:
+          type: object
+          description: Contains details about the role whose permissions got updated.
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the role.
+              example: 1fad5996-3418-4883-925d-a319e3bb8e72
+            name:
+              type: string
+              description: Display name of the role.
+              example: ROLE
+            audience:
+              $ref: '#/components/schemas/RoleAudience'
+            ref:
+              type: string
+              description: SCIM v2 reference URL for the role.
+            addedPermissions:
+              type: array
+              description: Permission names granted to the role in this update.
+              items:
+                type: string
+                example: internal_session_view
+            removedPermissions:
+              type: array
+              description: Permission names revoked from the role in this update.
+              items:
+                type: string
+                example: internal_session_view
+    LoginSuccessEvent:
+      type: object
+      description: Login success event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_LoginSuccess'
+    LoginFailedEvent:
+      type: object
+      description: Login failed event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_LoginFailed'
+    RegistrationSuccessEvent:
+      type: object
+      description: Registration success event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_RegistrationSuccess'
+    RegistrationFailedEvent:
+      type: object
+      description: Registration failed event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_RegistrationFailed'
+    AccessTokenIssuedEvent:
+      type: object
+      description: Access token issued event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_AccessTokenIssued'
+    AccessTokenRevokedEvent:
+      type: object
+      description: Access token revoked event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_AccessTokenRevoked'
+    SessionEstablishedEvent:
+      type: object
+      description: Session established event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_SessionEstablished'
+    SessionPresentedEvent:
+      type: object
+      description: Session presented event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_SessionPresented'
+    SessionRevokedEvent:
+      type: object
+      description: Session revoked event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_SessionRevoked'
+    CredentialUpdatedEvent:
+      type: object
+      description: Credential updated event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_CredentialUpdated'
+    UserCreatedEvent:
+      type: object
+      description: User created event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_UserCreated'
+    UserProfileUpdatedEvent:
+      type: object
+      description: User profile updated event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_UserProfileUpdated'
+    UserDisabledEvent:
+      type: object
+      description: User disabled event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_UserDisabled'
+    UserEnabledEvent:
+      type: object
+      description: User enabled event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_UserEnabled'
+    UserAccountLockedEvent:
+      type: object
+      description: User account locked event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_UserAccountLocked'
+    UserAccountUnlockedEvent:
+      type: object
+      description: User account unlocked event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_UserAccountUnlocked'
+    UserDeletedEvent:
+      type: object
+      description: User deleted event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_UserDeleted'
+    ConsentAddedEvent:
+      type: object
+      description: Consent added event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_ConsentAdded'
+    ConsentRevokedEvent:
+      type: object
+      description: Consent revoked event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_ConsentRevoked'
+    PurposeVersionAddedEvent:
+      type: object
+      description: Purpose version added event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_PurposeVersionAdded'
+    RoleCreatedEvent:
+      type: object
+      description: Role created event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_RoleCreated'
+    RoleMetaUpdatedEvent:
+      type: object
+      description: Role metadata updated event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_RoleMetaUpdated'
+    RoleDeletedEvent:
+      type: object
+      description: Role deleted event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_RoleDeleted'
+    RoleUsersUpdatedEvent:
+      type: object
+      description: Role users updated event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_RoleUsersUpdated'
+    RoleGroupsUpdatedEvent:
+      type: object
+      description: Role groups updated event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_RoleGroupsUpdated'
+    RoleIdpGroupsUpdatedEvent:
+      type: object
+      description: Role IdP groups updated event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_RoleIdpGroupsUpdated'
+    RolePermissionsUpdatedEvent:
+      type: object
+      description: Role permissions updated event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Platform instance that issued the event.
+          example: https://api.asgardeo.io/t/myorg
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_RolePermissionsUpdated'
