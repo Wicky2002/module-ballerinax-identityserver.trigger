@@ -67,10 +67,3 @@ Registration failures, access tokens, sessions, user profile, enable and disable
 consent purposes, roles and organizations are new. See the
 [Webhook events and payloads](https://is.docs.wso2.com/en/latest/guides/webhooks/webhook-events-and-payloads/)
 guide for when each is sent.
-
-## Test suite
-
-`ballerina/tests` sends each of the 32 events, using the example payload from the Identity Server
-event guide, as a signed request to a test listener and checks the right remote function runs. It
-also checks the WebSub subscription check and the `x-hub-signature` fallback. `bal test`: 37/37
-passing.
