@@ -1,0 +1,29 @@
+{
+  "iss": "{{server_url}}",
+  "jti": "7a3d92ed-da08-48c3-a0a9-7cbd98fbecf0",
+  "iat": 1790250489357,
+  "rci": "10f7f917-4625-4066-af8a-a3b6cf160134",
+  "events": {
+    "https://schemas.identity.wso2.org/events/organization/event-type/organizationDeleted": {
+      "initiatorType": "ADMIN",
+      "initiatorIpAddress": "127.0.0.1",
+      "tenant": {
+        "id": "12402",
+        "name": "{{tenant_domain}}"
+      },
+      "organization": {
+        "id": "10084a8d-113f-4211-a0d5-efe36b082211",
+        "name": "myorg",
+        "orgHandle": "{{tenant_domain}}",
+        "depth": 0
+      },
+      "action": "ORGANIZATION_DELETE",
+      "targetOrganization": {
+        "id": "15e7b839-6af4-4f94-b7c8-9e63b22c74ac",
+        "name": "ABC Builders",
+        "orgHandle": "abcbuilders",
+        "depth": 1
+      }
+    }
+  }
+}

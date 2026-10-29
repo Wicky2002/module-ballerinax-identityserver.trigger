@@ -1,0 +1,53 @@
+{
+  "iss": "https://localhost:9443/t/myorg.com",
+  "jti": "8c695b00-d165-466d-ab20-770aa43ec4da",
+  "iat": 1782900901608,
+  "rci": "8cccc58f-ecb1-46da-a825-707f6740b8ea",
+  "events": {
+    "https://schemas.identity.wso2.org/events/consent/event-type/consentAdded": {
+      "initiatorType": "USER",
+      "initiatorIpAddress": "127.0.0.1",
+      "user": {
+        "id": "60ed468b-a357-405c-aad2-2ce6960ec2aa",
+        "claims": [
+          {
+            "uri": "http://wso2.org/claims/emailaddress",
+            "value": "peter@aol.com"
+          }
+        ],
+        "ref": "https://localhost:9443/t/myorg.com/scim2/Users/60ed468b-a357-405c-aad2-2ce6960ec2aa"
+      },
+      "tenant": {
+        "id": "12402",
+        "name": "myorg.com"
+      },
+      "organization": {
+        "id": "10084a8d-113f-4211-a0d5-efe36b082211",
+        "name": "myorg",
+        "orgHandle": "myorg.com",
+        "depth": 0
+      },
+      "userStore": {
+        "id": "UFJJTUFSWQ==",
+        "name": "PRIMARY"
+      },
+      "action": "REGISTER",
+      "consent": {
+        "id": "501a6ba7-0b15-4ae6-9642-03b5267ab996",
+        "subjectId": "peter",
+        "state": "APPROVED",
+        "serviceId": "Resident IDP",
+        "purpose": {
+          "id": "909eea3e-5bf1-4106-a5b8-44580fc4ae74",
+          "name": "Marketing Consent",
+          "version": "12a53d28-4536-4201-939e-5e5c00eadf7b",
+          "elements": [
+            {
+              "name": "Policy"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
