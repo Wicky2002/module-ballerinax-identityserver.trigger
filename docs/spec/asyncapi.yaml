@@ -4,7 +4,8 @@ x-ballerina-event-identifier:
   type: body-key
   path: events
 # Deliveries are signed with `sha256=<hex>`, an HMAC-SHA256 of the raw body keyed with the webhook secret. WSO2
-# Identity Server sends it in `x-wso2-event-signature` and Asgardeo in `x-hub-signature`; the listener takes either.
+# Identity Server sends it in `x-wso2-event-signature` and Asgardeo in `x-hub-signature`. Only the first can be declared here; the
+# listener's fallback to `x-hub-signature` is a hand edit in dispatcher_service.bal (see sanitations.md).
 x-ballerina-auth:
   header: x-wso2-event-signature
   signature:
@@ -711,6 +712,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/login/event-type/loginSuccess:
           $ref: '#/components/schemas/LoginSuccessPayload'
+          description: The login success event data.
     EventData_LoginFailed:
       title: Login failed
       type: object
@@ -719,6 +721,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/login/event-type/loginFailed:
           $ref: '#/components/schemas/LoginFailedPayload'
+          description: The login failed event data.
     EventData_RegistrationSuccess:
       title: Registration success
       type: object
@@ -727,6 +730,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/registration/event-type/registrationSuccess:
           $ref: '#/components/schemas/RegistrationSuccessPayload'
+          description: The registration success event data.
     EventData_RegistrationFailed:
       title: Registration failed
       type: object
@@ -735,6 +739,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/registration/event-type/registrationFailed:
           $ref: '#/components/schemas/RegistrationFailedPayload'
+          description: The registration failed event data.
     EventData_AccessTokenIssued:
       title: Access token issued
       type: object
@@ -743,6 +748,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/token/event-type/accessTokenIssued:
           $ref: '#/components/schemas/AccessTokenIssuedPayload'
+          description: The access token issued event data.
     EventData_AccessTokenRevoked:
       title: Access token revoked
       type: object
@@ -751,6 +757,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/token/event-type/accessTokenRevoked:
           $ref: '#/components/schemas/AccessTokenRevokedPayload'
+          description: The access token revoked event data.
     EventData_SessionEstablished:
       title: Session established
       type: object
@@ -759,6 +766,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/session/event-type/sessionEstablished:
           $ref: '#/components/schemas/SessionEstablishedPayload'
+          description: The session established event data.
     EventData_SessionPresented:
       title: Session presented
       type: object
@@ -767,6 +775,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/session/event-type/sessionPresented:
           $ref: '#/components/schemas/SessionPresentedPayload'
+          description: The session presented event data.
     EventData_SessionRevoked:
       title: Session revoked
       type: object
@@ -775,6 +784,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/session/event-type/sessionRevoked:
           $ref: '#/components/schemas/SessionRevokedPayload'
+          description: The session revoked event data.
     EventData_CredentialUpdated:
       title: Credential updated
       type: object
@@ -783,6 +793,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/credential/event-type/credentialUpdated:
           $ref: '#/components/schemas/CredentialUpdatedPayload'
+          description: The credential updated event data.
     EventData_UserCreated:
       title: User created
       type: object
@@ -791,6 +802,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/user/event-type/userCreated:
           $ref: '#/components/schemas/UserCreatedPayload'
+          description: The user created event data.
     EventData_UserProfileUpdated:
       title: User profile updated
       type: object
@@ -799,6 +811,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/user/event-type/userProfileUpdated:
           $ref: '#/components/schemas/UserProfileUpdatedPayload'
+          description: The user profile updated event data.
     EventData_UserDisabled:
       title: User disabled
       type: object
@@ -807,6 +820,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/user/event-type/userDisabled:
           $ref: '#/components/schemas/UserDisabledPayload'
+          description: The user disabled event data.
     EventData_UserEnabled:
       title: User enabled
       type: object
@@ -815,6 +829,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/user/event-type/userEnabled:
           $ref: '#/components/schemas/UserEnabledPayload'
+          description: The user enabled event data.
     EventData_UserAccountLocked:
       title: User account locked
       type: object
@@ -823,6 +838,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/user/event-type/userAccountLocked:
           $ref: '#/components/schemas/UserAccountLockedPayload'
+          description: The user account locked event data.
     EventData_UserAccountUnlocked:
       title: User account unlocked
       type: object
@@ -831,6 +847,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/user/event-type/userAccountUnlocked:
           $ref: '#/components/schemas/UserAccountUnlockedPayload'
+          description: The user account unlocked event data.
     EventData_UserDeleted:
       title: User deleted
       type: object
@@ -839,6 +856,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/user/event-type/userDeleted:
           $ref: '#/components/schemas/UserDeletedPayload'
+          description: The user deleted event data.
     EventData_ConsentAdded:
       title: Consent added
       type: object
@@ -847,6 +865,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/consent/event-type/consentAdded:
           $ref: '#/components/schemas/ConsentAddedPayload'
+          description: The consent added event data.
     EventData_ConsentRevoked:
       title: Consent revoked
       type: object
@@ -855,6 +874,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/consent/event-type/consentRevoked:
           $ref: '#/components/schemas/ConsentRevokedPayload'
+          description: The consent revoked event data.
     EventData_PurposeVersionAdded:
       title: Purpose version added
       type: object
@@ -863,6 +883,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/consent-purpose/event-type/purposeVersionAdded:
           $ref: '#/components/schemas/PurposeVersionAddedPayload'
+          description: The purpose version added event data.
     RoleAudience:
       type: object
       description: The audience the role is scoped to.
@@ -944,6 +965,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/role/event-type/roleCreated:
           $ref: '#/components/schemas/RoleCreatedPayload'
+          description: The role created event data.
     EventData_RoleMetaUpdated:
       title: Role metadata updated
       type: object
@@ -952,6 +974,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/role/event-type/roleMetaUpdated:
           $ref: '#/components/schemas/RoleMetaUpdatedPayload'
+          description: The role metadata updated event data.
     EventData_RoleDeleted:
       title: Role deleted
       type: object
@@ -960,6 +983,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/role/event-type/roleDeleted:
           $ref: '#/components/schemas/RoleDeletedPayload'
+          description: The role deleted event data.
     EventData_RoleUsersUpdated:
       title: Role users updated
       type: object
@@ -968,6 +992,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/role/event-type/roleUsersUpdated:
           $ref: '#/components/schemas/RoleUsersUpdatedPayload'
+          description: The role users updated event data.
     EventData_RoleGroupsUpdated:
       title: Role groups updated
       type: object
@@ -976,6 +1001,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/role/event-type/roleGroupsUpdated:
           $ref: '#/components/schemas/RoleGroupsUpdatedPayload'
+          description: The role groups updated event data.
     EventData_RoleIdpGroupsUpdated:
       title: Role IdP groups updated
       type: object
@@ -984,6 +1010,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/role/event-type/roleIdpGroupsUpdated:
           $ref: '#/components/schemas/RoleIdpGroupsUpdatedPayload'
+          description: The role IdP groups updated event data.
     EventData_RolePermissionsUpdated:
       title: Role permissions updated
       type: object
@@ -992,6 +1019,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/role/event-type/rolePermissionsUpdated:
           $ref: '#/components/schemas/RolePermissionsUpdatedPayload'
+          description: The role permissions updated event data.
     LoginSuccessPayload:
       type: object
       properties:
@@ -1702,6 +1730,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_LoginSuccess'
+          description: The event, keyed by its event type URI.
     LoginFailedEvent:
       type: object
       description: Login failed event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -1730,6 +1759,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_LoginFailed'
+          description: The event, keyed by its event type URI.
     RegistrationSuccessEvent:
       type: object
       description: Registration success event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -1758,6 +1788,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_RegistrationSuccess'
+          description: The event, keyed by its event type URI.
     RegistrationFailedEvent:
       type: object
       description: Registration failed event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -1786,6 +1817,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_RegistrationFailed'
+          description: The event, keyed by its event type URI.
     AccessTokenIssuedEvent:
       type: object
       description: Access token issued event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -1814,6 +1846,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_AccessTokenIssued'
+          description: The event, keyed by its event type URI.
     AccessTokenRevokedEvent:
       type: object
       description: Access token revoked event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -1842,6 +1875,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_AccessTokenRevoked'
+          description: The event, keyed by its event type URI.
     SessionEstablishedEvent:
       type: object
       description: Session established event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -1870,6 +1904,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_SessionEstablished'
+          description: The event, keyed by its event type URI.
     SessionPresentedEvent:
       type: object
       description: Session presented event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -1898,6 +1933,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_SessionPresented'
+          description: The event, keyed by its event type URI.
     SessionRevokedEvent:
       type: object
       description: Session revoked event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -1926,6 +1962,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_SessionRevoked'
+          description: The event, keyed by its event type URI.
     CredentialUpdatedEvent:
       type: object
       description: Credential updated event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -1954,6 +1991,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_CredentialUpdated'
+          description: The event, keyed by its event type URI.
     UserCreatedEvent:
       type: object
       description: User created event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -1982,6 +2020,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_UserCreated'
+          description: The event, keyed by its event type URI.
     UserProfileUpdatedEvent:
       type: object
       description: User profile updated event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2010,6 +2049,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_UserProfileUpdated'
+          description: The event, keyed by its event type URI.
     UserDisabledEvent:
       type: object
       description: User disabled event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2038,6 +2078,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_UserDisabled'
+          description: The event, keyed by its event type URI.
     UserEnabledEvent:
       type: object
       description: User enabled event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2066,6 +2107,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_UserEnabled'
+          description: The event, keyed by its event type URI.
     UserAccountLockedEvent:
       type: object
       description: User account locked event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2094,6 +2136,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_UserAccountLocked'
+          description: The event, keyed by its event type URI.
     UserAccountUnlockedEvent:
       type: object
       description: User account unlocked event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2122,6 +2165,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_UserAccountUnlocked'
+          description: The event, keyed by its event type URI.
     UserDeletedEvent:
       type: object
       description: User deleted event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2150,6 +2194,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_UserDeleted'
+          description: The event, keyed by its event type URI.
     ConsentAddedEvent:
       type: object
       description: Consent added event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2178,6 +2223,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_ConsentAdded'
+          description: The event, keyed by its event type URI.
     ConsentRevokedEvent:
       type: object
       description: Consent revoked event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2206,6 +2252,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_ConsentRevoked'
+          description: The event, keyed by its event type URI.
     PurposeVersionAddedEvent:
       type: object
       description: Purpose version added event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2234,6 +2281,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_PurposeVersionAdded'
+          description: The event, keyed by its event type URI.
     RoleCreatedEvent:
       type: object
       description: Role created event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2262,6 +2310,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_RoleCreated'
+          description: The event, keyed by its event type URI.
     RoleMetaUpdatedEvent:
       type: object
       description: Role metadata updated event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2290,6 +2339,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_RoleMetaUpdated'
+          description: The event, keyed by its event type URI.
     RoleDeletedEvent:
       type: object
       description: Role deleted event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2318,6 +2368,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_RoleDeleted'
+          description: The event, keyed by its event type URI.
     RoleUsersUpdatedEvent:
       type: object
       description: Role users updated event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2346,6 +2397,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_RoleUsersUpdated'
+          description: The event, keyed by its event type URI.
     RoleGroupsUpdatedEvent:
       type: object
       description: Role groups updated event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2374,6 +2426,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_RoleGroupsUpdated'
+          description: The event, keyed by its event type URI.
     RoleIdpGroupsUpdatedEvent:
       type: object
       description: Role IdP groups updated event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2402,6 +2455,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_RoleIdpGroupsUpdated'
+          description: The event, keyed by its event type URI.
     RolePermissionsUpdatedEvent:
       type: object
       description: Role permissions updated event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2430,6 +2484,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_RolePermissionsUpdated'
+          description: The event, keyed by its event type URI.
     OrganizationAttribute:
       type: object
       description: A custom attribute of an organization.
@@ -2450,14 +2505,17 @@ components:
       properties:
         added:
           type: array
+          description: Attributes added by the operation.
           items:
             $ref: '#/components/schemas/OrganizationAttribute'
         removed:
           type: array
+          description: Attributes removed by the operation.
           items:
             $ref: '#/components/schemas/OrganizationAttribute'
         updated:
           type: array
+          description: Attributes updated by the operation.
           items:
             $ref: '#/components/schemas/OrganizationAttribute'
     TargetOrganization:
@@ -2570,6 +2628,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/organization/event-type/organizationCreated:
           $ref: '#/components/schemas/OrganizationCreatedPayload'
+          description: The organization created event data.
     OrganizationCreatedEvent:
       type: object
       description: Organization created event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2598,6 +2657,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_OrganizationCreated'
+          description: The event, keyed by its event type URI.
     OrganizationUpdatedPayload:
       type: object
       properties:
@@ -2621,6 +2681,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/organization/event-type/organizationUpdated:
           $ref: '#/components/schemas/OrganizationUpdatedPayload'
+          description: The organization updated event data.
     OrganizationUpdatedEvent:
       type: object
       description: Organization updated event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2649,6 +2710,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_OrganizationUpdated'
+          description: The event, keyed by its event type URI.
     OrganizationEnabledPayload:
       type: object
       properties:
@@ -2672,6 +2734,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/organization/event-type/organizationEnabled:
           $ref: '#/components/schemas/OrganizationEnabledPayload'
+          description: The organization enabled event data.
     OrganizationEnabledEvent:
       type: object
       description: Organization enabled event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2700,6 +2763,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_OrganizationEnabled'
+          description: The event, keyed by its event type URI.
     OrganizationDisabledPayload:
       type: object
       properties:
@@ -2723,6 +2787,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/organization/event-type/organizationDisabled:
           $ref: '#/components/schemas/OrganizationDisabledPayload'
+          description: The organization disabled event data.
     OrganizationDisabledEvent:
       type: object
       description: Organization disabled event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2751,6 +2816,7 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_OrganizationDisabled'
+          description: The event, keyed by its event type URI.
     OrganizationDeletedPayload:
       type: object
       properties:
@@ -2774,6 +2840,7 @@ components:
       properties:
         https://schemas.identity.wso2.org/events/organization/event-type/organizationDeleted:
           $ref: '#/components/schemas/OrganizationDeletedPayload'
+          description: The organization deleted event data.
     OrganizationDeletedEvent:
       type: object
       description: Organization deleted event. The payload is a Security Event Token (RFC 8417) claim set.
@@ -2802,3 +2869,4 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_OrganizationDeleted'
+          description: The event, keyed by its event type URI.
