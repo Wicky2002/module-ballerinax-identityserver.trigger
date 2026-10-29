@@ -44,19 +44,37 @@ local listener to the internet. An Identity Server running on the same machine c
 
    Copy the `Forwarding` URL ngrok prints out - this is your temporary public endpoint.
 
-3. In the Identity Server or Asgardeo Console, go to **Webhooks** and click **Add Webhook**:
+   <img src="https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-identityserver.trigger/main/docs/setup/resources/ngrok-forwarding.png" alt="ngrok forwarding a public URL to localhost:8090" width="600">
+
+3. In the Identity Server or Asgardeo Console, go to **Webhooks** and click **Add Webhook**. (The
+   screenshots are from Asgardeo; the Identity Server Console has the same pages.)
+
+   <img src="https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-identityserver.trigger/main/docs/setup/resources/webhook-settings-page.png" alt="Webhooks page in the Asgardeo Console" width="600">
+
+4. Fill in the webhook:
    - **Name**: any descriptive name.
    - **Endpoint**: the URL from step 1 or 2.
    - **Secret**: the same value as `webhookSecret` in your service. The server signs every delivery
      with it, and the listener rejects requests that don't carry a matching signature.
-   - **Events to subscribe**: the event types your service handles, for example **Logins**.
+   - Leave **Active** on, or turn it on later from the webhook list.
 
-4. Click **Create**, then turn the webhook on with its toggle (webhooks are inactive when created).
-   Asgardeo then sends a `GET` verification request for each subscribed event type; the listener
-   answers it, so the webhook activates.
+   <img src="https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-identityserver.trigger/main/docs/setup/resources/webhook-form-filled.png" alt="Add Webhook form with the name, the ngrok endpoint and the secret" width="600">
 
-5. Trigger an event, for example by signing in to an application in the organization. Each
-   delivery is answered with `200 OK`, and your handler runs.
+5. Under **Select Events**, tick the events your service handles, for example **Logins** for
+   `LoginService` or **User account management** for `UserService`, and click **Create**.
+
+   <img src="https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-identityserver.trigger/main/docs/setup/resources/webhook-event-selection.png" alt="Select Events list with Logins and Registrations ticked" width="600">
+
+6. The webhook is listed as **Active**. When it's activated, Asgardeo sends a `GET` verification
+   request for each subscribed event type; the listener answers it, so your service must be
+   running at that point. If it wasn't, turn the webhook off and on again to resend the requests.
+
+   <img src="https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-identityserver.trigger/main/docs/setup/resources/webhook-activated.png" alt="Webhook list showing the webhook as Active" width="600">
+
+7. Trigger an event, for example by signing in to an application in the organization. Each request
+   shows up in the ngrok console with `200 OK`, and your handler runs for each event.
+
+   <img src="https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-identityserver.trigger/main/docs/setup/resources/webhook-confirmed.png" alt="ngrok console showing a request to the listener answered with 200 OK" width="600">
 
 See [Set up webhooks](https://is.docs.wso2.com/en/latest/guides/webhooks/setup-webhooks/) and
 [Webhook events and payloads](https://is.docs.wso2.com/en/latest/guides/webhooks/webhook-events-and-payloads/)
