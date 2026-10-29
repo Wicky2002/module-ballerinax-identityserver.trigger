@@ -1,0 +1,39 @@
+{
+  "iss": "{{server_url}}",
+  "jti": "99ea2226-328e-4b60-bc8d-4d72028267e8",
+  "iat": 1783322187274,
+  "rci": "c607ec61-8bcc-4f2c-8b21-064f3774fdd4",
+  "events": {
+    "https://schemas.identity.wso2.org/events/role/event-type/rolePermissionsUpdated": {
+      "initiatorType": "ADMIN",
+      "initiatorIpAddress": "127.0.0.1",
+      "tenant": {
+        "id": "12402",
+        "name": "{{tenant_domain}}"
+      },
+      "organization": {
+        "id": "10084a8d-113f-4211-a0d5-efe36b082211",
+        "name": "myorg",
+        "orgHandle": "{{tenant_domain}}",
+        "depth": 0
+      },
+      "action": "ROLE_UPDATE",
+      "role": {
+        "id": "1fad5996-3418-4883-925d-a319e3bb8e72",
+        "name": "ROLE",
+        "audience": {
+          "type": "application",
+          "value": "6db0975b-9f7c-42d1-a8b4-895a77d23cff",
+          "display": "Sample Application"
+        },
+        "ref": "{{host_url}}/scim2/v2/Roles/1fad5996-3418-4883-925d-a319e3bb8e72",
+        "addedPermissions": [
+          "internal_session_delete"
+        ],
+        "removedPermissions": [
+          "internal_session_view"
+        ]
+      }
+    }
+  }
+}

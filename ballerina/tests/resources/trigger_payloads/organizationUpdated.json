@@ -1,0 +1,53 @@
+{
+  "iss": "{{server_url}}",
+  "jti": "1a7c2c8a-9d40-4d79-99e3-bfb2744c5baa",
+  "iat": 1790247025906,
+  "rci": "c9317ee4-407a-4f19-ad2c-ff95f69a973a",
+  "events": {
+    "https://schemas.identity.wso2.org/events/organization/event-type/organizationUpdated": {
+      "initiatorType": "ADMIN",
+      "initiatorIpAddress": "127.0.0.1",
+      "tenant": {
+        "id": "12402",
+        "name": "{{tenant_domain}}"
+      },
+      "organization": {
+        "id": "10084a8d-113f-4211-a0d5-efe36b082211",
+        "name": "myorg",
+        "orgHandle": "{{tenant_domain}}",
+        "depth": 0
+      },
+      "action": "ORGANIZATION_UPDATE",
+      "targetOrganization": {
+        "id": "8df67d89-82bf-4ab0-802d-c9ae9a57c5f6",
+        "name": "ABC Builders updated",
+        "orgHandle": "8df67d89-82bf-4ab0-802d-c9ae9a57c5f6",
+        "depth": 1,
+        "ref": "{{server_url}}/api/server/v1/organizations/8df67d89-82bf-4ab0-802d-c9ae9a57c5f6",
+        "updatedValues": {
+          "name": "ABC Builders updated",
+          "description": "Building constructions",
+          "attributes": {
+            "added": [
+              {
+                "name": "Region",
+                "value": "EMEA"
+              }
+            ],
+            "removed": [
+              {
+                "name": "Industry"
+              }
+            ],
+            "updated": [
+              {
+                "name": "Country",
+                "value": "UK"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

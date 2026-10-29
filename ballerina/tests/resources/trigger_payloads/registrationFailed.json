@@ -1,0 +1,48 @@
+{
+  "iss": "https://localhost:9443/t/myorg.com",
+  "jti": "43e76a18-f3b3-400c-bf76-9761b4ec5d57",
+  "iat": 1751565405544,
+  "rci": "05268edb-9a87-4656-87c0-0fb674dd03b1",
+  "events": {
+    "https://schemas.identity.wso2.org/events/registration/event-type/registrationFailed": {
+      "initiatorType": "USER",
+      "initiatorIpAddress": "203.0.113.10",
+      "user": {
+        "claims": [
+          {
+            "uri": "http://wso2.org/claims/username",
+            "value": "peter"
+          },
+          {
+            "uri": "http://wso2.org/claims/emailaddress",
+            "value": "peter@aol.com"
+          },
+          {
+            "uri": "http://wso2.org/claims/givenname",
+            "value": "Peter"
+          }
+        ],
+        "organization": {
+          "id": "6f8d17ae-1ad5-441b-b9e0-c7731e739e94",
+          "name": "myorg",
+          "orgHandle": "myorg.com",
+          "depth": 0
+        }
+      },
+      "tenant": {
+        "id": "12402",
+        "name": "myorg.com"
+      },
+      "organization": {
+        "id": "6f8d17ae-1ad5-441b-b9e0-c7731e739e94",
+        "name": "myorg",
+        "orgHandle": "myorg.com",
+        "depth": 0
+      },
+      "action": "REGISTER",
+      "reason": {
+        "description": "The provided username already exists in the tenant: myorg.com"
+      }
+    }
+  }
+}

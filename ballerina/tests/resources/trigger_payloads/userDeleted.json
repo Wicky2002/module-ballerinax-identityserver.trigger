@@ -1,0 +1,43 @@
+{
+  "iss": "https://localhost:9443/t/myorg.com",
+  "jti": "21f03016-632d-4266-9e8b-8863001109f2",
+  "iat": 1751571143534,
+  "rci": "05268edb-9a87-4656-87c0-0fb674dd03b1",
+  "events": {
+    "https://schemas.identity.wso2.org/events/user/event-type/userDeleted": {
+      "initiatorType": "ADMIN",
+      "initiatorIpAddress": "203.0.113.10",
+      "user": {
+        "id": "0bd61ecd-e974-41e6-a962-8b712090240f",
+        "claims": [
+          {
+            "uri": "http://wso2.org/claims/username",
+            "value": "peter@aol.com"
+          }
+        ],
+        "organization": {
+          "id": "6f8d17ae-1ad5-441b-b9e0-c7731e739e94",
+          "name": "myorg",
+          "orgHandle": "myorg.com",
+          "depth": 0
+        },
+        "ref": "https://localhost:9443/t/myorg.com/scim2/Users/0bd61ecd-e974-41e6-a962-8b712090240f"
+      },
+      "tenant": {
+        "id": "12402",
+        "name": "myorg.com"
+      },
+      "organization": {
+        "id": "6f8d17ae-1ad5-441b-b9e0-c7731e739e94",
+        "name": "myorg",
+        "orgHandle": "myorg.com",
+        "depth": 0
+      },
+      "userStore": {
+        "id": "UFJJTUFSWQ==",
+        "name": "PRIMARY"
+      },
+      "action": "USER_ACCOUNT_DELETE"
+    }
+  }
+}

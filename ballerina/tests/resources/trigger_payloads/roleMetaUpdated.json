@@ -1,0 +1,33 @@
+{
+  "iss": "{{server_url}}",
+  "jti": "cead6c7f-a38c-4752-9485-56af37c1db5f",
+  "iat": 1783322212811,
+  "rci": "ad969f38-830c-41e7-b4c1-6f5544544921",
+  "events": {
+    "https://schemas.identity.wso2.org/events/role/event-type/roleMetaUpdated": {
+      "initiatorType": "ADMIN",
+      "initiatorIpAddress": "127.0.0.1",
+      "tenant": {
+        "id": "12402",
+        "name": "{{tenant_domain}}"
+      },
+      "organization": {
+        "id": "10084a8d-113f-4211-a0d5-efe36b082211",
+        "name": "myorg",
+        "orgHandle": "{{tenant_domain}}",
+        "depth": 0
+      },
+      "action": "ROLE_UPDATE",
+      "role": {
+        "id": "1fad5996-3418-4883-925d-a319e3bb8e72",
+        "name": "ROLE-updated",
+        "audience": {
+          "type": "application",
+          "value": "6db0975b-9f7c-42d1-a8b4-895a77d23cff",
+          "display": "Sample Application"
+        },
+        "ref": "{{host_url}}/scim2/v2/Roles/1fad5996-3418-4883-925d-a319e3bb8e72"
+      }
+    }
+  }
+}
