@@ -1,0 +1,148 @@
+{
+  "version": "v1.0",
+  "listeners": [
+    {
+      "id": "$listener",
+      "doc": "Webhook listener that dispatches each inbound WSO2 Identity Server webhook event to the concrete service type matching its event family.",
+      "type": {
+        "name": "Listener"
+      },
+      "services": [
+        "$login",
+        "$registration",
+        "$token",
+        "$session",
+        "$credential",
+        "$user",
+        "$consent",
+        "$consentPurpose",
+        "$role",
+        "$organization"
+      ],
+      "multipleServicesAllowed": true,
+      "multipleServicesOfSameTypeAllowed": false
+    }
+  ],
+  "serviceTypes": [
+    {
+      "id": "$login",
+      "doc": "Receives WSO2 Identity Server login events: success and failed.",
+      "type": {
+        "name": "LoginService"
+      },
+      "concrete": true,
+      "multipleListenersAllowed": true,
+      "handlers": {
+        "backedByConcreteType": true
+      }
+    },
+    {
+      "id": "$registration",
+      "doc": "Receives WSO2 Identity Server registration events: success and failed.",
+      "type": {
+        "name": "RegistrationService"
+      },
+      "concrete": true,
+      "multipleListenersAllowed": true,
+      "handlers": {
+        "backedByConcreteType": true
+      }
+    },
+    {
+      "id": "$token",
+      "doc": "Receives WSO2 Identity Server token events: access token issued and access token revoked.",
+      "type": {
+        "name": "TokenService"
+      },
+      "concrete": true,
+      "multipleListenersAllowed": true,
+      "handlers": {
+        "backedByConcreteType": true
+      }
+    },
+    {
+      "id": "$session",
+      "doc": "Receives WSO2 Identity Server session events: established, presented, and revoked.",
+      "type": {
+        "name": "SessionService"
+      },
+      "concrete": true,
+      "multipleListenersAllowed": true,
+      "handlers": {
+        "backedByConcreteType": true
+      }
+    },
+    {
+      "id": "$credential",
+      "doc": "Receives WSO2 Identity Server credential events: updated.",
+      "type": {
+        "name": "CredentialService"
+      },
+      "concrete": true,
+      "multipleListenersAllowed": true,
+      "handlers": {
+        "backedByConcreteType": true
+      }
+    },
+    {
+      "id": "$user",
+      "doc": "Receives WSO2 Identity Server user events: created, profile updated, disabled, enabled, account locked, account unlocked, and deleted.",
+      "type": {
+        "name": "UserService"
+      },
+      "concrete": true,
+      "multipleListenersAllowed": true,
+      "handlers": {
+        "backedByConcreteType": true
+      }
+    },
+    {
+      "id": "$consent",
+      "doc": "Receives WSO2 Identity Server consent events: added and revoked.",
+      "type": {
+        "name": "ConsentService"
+      },
+      "concrete": true,
+      "multipleListenersAllowed": true,
+      "handlers": {
+        "backedByConcreteType": true
+      }
+    },
+    {
+      "id": "$consentPurpose",
+      "doc": "Receives WSO2 Identity Server consent purpose events: purpose version added.",
+      "type": {
+        "name": "ConsentPurposeService"
+      },
+      "concrete": true,
+      "multipleListenersAllowed": true,
+      "handlers": {
+        "backedByConcreteType": true
+      }
+    },
+    {
+      "id": "$role",
+      "doc": "Receives WSO2 Identity Server role events: created, meta updated, deleted, users updated, groups updated, idp groups updated, and permissions updated.",
+      "type": {
+        "name": "RoleService"
+      },
+      "concrete": true,
+      "multipleListenersAllowed": true,
+      "handlers": {
+        "backedByConcreteType": true
+      }
+    },
+    {
+      "id": "$organization",
+      "doc": "Receives WSO2 Identity Server organization events: created, updated, enabled, disabled, and deleted.",
+      "type": {
+        "name": "OrganizationService"
+      },
+      "concrete": true,
+      "multipleListenersAllowed": true,
+      "handlers": {
+        "backedByConcreteType": true
+      }
+    }
+  ]
+}

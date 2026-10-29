@@ -1,0 +1,390 @@
+{
+  "version": "v1.0",
+  "metadata": {
+    "kind": "event"
+  },
+  "trigger": {
+    "displayName": "WSO2 Identity Server Event Integration",
+    "description": "Create a service to handle webhook events from WSO2 Identity Server",
+    "type": "identityserver"
+  },
+  "initForm": {
+    "fields": [
+      {
+        "target": {
+          "kind": "recordField",
+          "owner": "trigger.initProperties",
+          "path": "serviceType"
+        },
+        "metadata": {
+          "label": "Event Channel",
+          "description": "The type of WSO2 Identity Server or Asgardeo webhook event to listen for"
+        },
+        "source": {
+          "construct": {
+            "kind": "SERVICE_TYPE_DESCRIPTOR"
+          },
+          "module": {
+            "name": "identityserver"
+          }
+        },
+        "state": {
+          "enabled": true,
+          "editable": true,
+          "optional": false,
+          "advanced": false
+        },
+        "key": "serviceType",
+        "default": "identityserver:LoginService"
+      }
+    ]
+  },
+  "listeners": [
+    {
+      "target": "$listener",
+      "form": {
+        "section": {
+          "label": "Listener",
+          "description": "Attach the service to a new or existing WSO2 Identity Server webhook listener."
+        },
+        "createNew": {
+          "label": "Create New Listener",
+          "description": "Define a new WSO2 Identity Server webhook listener in the project."
+        },
+        "listenerConfig": {
+          "label": "Listener Configurations",
+          "description": "Configure the WSO2 Identity Server webhook listener."
+        },
+        "useExisting": {
+          "label": "Use Existing Listener",
+          "description": "Attach to a WSO2 Identity Server listener already declared in the project."
+        },
+        "existingListener": {
+          "label": "Listener",
+          "description": "Select an existing listener to attach the service to."
+        },
+        "existingListenerItems": [
+          "identityserverListener"
+        ],
+        "existingListenerValue": "identityserverListener"
+      },
+      "formFields": {
+        "listenerVarName": {
+          "key": "listenerVarName",
+          "default": "identityserverListener",
+          "metadata": {
+            "label": "Listener Name",
+            "description": "Provide a name for the listener being created"
+          },
+          "source": {
+            "construct": {
+              "kind": "LISTENER_VAR_NAME"
+            }
+          },
+          "state": {
+            "enabled": true,
+            "editable": true,
+            "optional": false,
+            "advanced": false
+          }
+        },
+        "listenOn": {
+          "key": "listenOn",
+          "placeholder": "8090",
+          "default": "8090",
+          "metadata": {
+            "label": "Webhook Listener Port",
+            "description": "The port on which the webhook listener accepts incoming HTTP requests"
+          },
+          "source": {
+            "argument": {
+              "kind": "LISTENER_PARAM_REQUIRED",
+              "position": 2,
+              "originalName": "listenOn"
+            }
+          },
+          "state": {
+            "enabled": true,
+            "editable": true,
+            "optional": true,
+            "advanced": false
+          }
+        },
+        "listenerConfigFallback": {
+          "key": "listenerConfigFallback",
+          "default": "{}",
+          "metadata": {
+            "label": "Listener Config",
+            "description": "Fallback empty value for the listener config record when no fields under it are set."
+          },
+          "source": {
+            "argument": {
+              "kind": "LISTENER_PARAM_REQUIRED",
+              "position": 1,
+              "originalName": "listenerConfig"
+            }
+          },
+          "state": {
+            "enabled": true,
+            "editable": false,
+            "optional": true,
+            "advanced": true,
+            "hidden": true
+          }
+        },
+        "webhookSecret": {
+          "key": "webhookSecret",
+          "placeholder": "",
+          "default": "",
+          "metadata": {
+            "label": "Webhook Secret",
+            "description": "Secret configured on the webhook in the WSO2 Identity Server or Asgardeo Console, used to validate incoming events"
+          },
+          "source": {
+            "argument": {
+              "kind": "LISTENER_PARAM_CONFIG_FIELD",
+              "originalName": "webhookSecret",
+              "position": 1
+            },
+            "path": "webhookSecret"
+          },
+          "state": {
+            "enabled": true,
+            "editable": true,
+            "optional": true,
+            "advanced": false
+          }
+        }
+      }
+    }
+  ],
+  "serviceTypes": [
+    {
+      "target": "$login",
+      "metadata": {
+        "label": "Login",
+        "description": "Triggered when an event related to WSO2 Identity Server login is received. Available actions: onLoginSuccess and onLoginFailed."
+      },
+      "source": {
+        "construct": {
+          "kind": "SERVICE_TYPE_DESCRIPTOR"
+        },
+        "argument": {
+          "originalName": "LoginService"
+        },
+        "module": {
+          "name": "identityserver"
+        }
+      },
+      "state": {
+        "enabled": true,
+        "editable": true
+      }
+    },
+    {
+      "target": "$registration",
+      "metadata": {
+        "label": "Registration",
+        "description": "Triggered when an event related to WSO2 Identity Server registration is received. Available actions: onRegistrationSuccess and onRegistrationFailed."
+      },
+      "source": {
+        "construct": {
+          "kind": "SERVICE_TYPE_DESCRIPTOR"
+        },
+        "argument": {
+          "originalName": "RegistrationService"
+        },
+        "module": {
+          "name": "identityserver"
+        }
+      },
+      "state": {
+        "enabled": false,
+        "editable": true
+      }
+    },
+    {
+      "target": "$token",
+      "metadata": {
+        "label": "Token",
+        "description": "Triggered when an event related to WSO2 Identity Server token is received. Available actions: onAccessTokenIssued and onAccessTokenRevoked."
+      },
+      "source": {
+        "construct": {
+          "kind": "SERVICE_TYPE_DESCRIPTOR"
+        },
+        "argument": {
+          "originalName": "TokenService"
+        },
+        "module": {
+          "name": "identityserver"
+        }
+      },
+      "state": {
+        "enabled": false,
+        "editable": true
+      }
+    },
+    {
+      "target": "$session",
+      "metadata": {
+        "label": "Session",
+        "description": "Triggered when an event related to WSO2 Identity Server session is received. Available actions: onSessionEstablished, onSessionPresented, and onSessionRevoked."
+      },
+      "source": {
+        "construct": {
+          "kind": "SERVICE_TYPE_DESCRIPTOR"
+        },
+        "argument": {
+          "originalName": "SessionService"
+        },
+        "module": {
+          "name": "identityserver"
+        }
+      },
+      "state": {
+        "enabled": false,
+        "editable": true
+      }
+    },
+    {
+      "target": "$credential",
+      "metadata": {
+        "label": "Credential",
+        "description": "Triggered when an event related to WSO2 Identity Server credential is received. Available actions: onCredentialUpdated."
+      },
+      "source": {
+        "construct": {
+          "kind": "SERVICE_TYPE_DESCRIPTOR"
+        },
+        "argument": {
+          "originalName": "CredentialService"
+        },
+        "module": {
+          "name": "identityserver"
+        }
+      },
+      "state": {
+        "enabled": false,
+        "editable": true
+      }
+    },
+    {
+      "target": "$user",
+      "metadata": {
+        "label": "User",
+        "description": "Triggered when an event related to WSO2 Identity Server user is received. Available actions: onUserCreated, onUserProfileUpdated, onUserDisabled, onUserEnabled, onUserAccountLocked, onUserAccountUnlocked, and onUserDeleted."
+      },
+      "source": {
+        "construct": {
+          "kind": "SERVICE_TYPE_DESCRIPTOR"
+        },
+        "argument": {
+          "originalName": "UserService"
+        },
+        "module": {
+          "name": "identityserver"
+        }
+      },
+      "state": {
+        "enabled": false,
+        "editable": true
+      }
+    },
+    {
+      "target": "$consent",
+      "metadata": {
+        "label": "Consent",
+        "description": "Triggered when an event related to WSO2 Identity Server consent is received. Available actions: onConsentAdded and onConsentRevoked."
+      },
+      "source": {
+        "construct": {
+          "kind": "SERVICE_TYPE_DESCRIPTOR"
+        },
+        "argument": {
+          "originalName": "ConsentService"
+        },
+        "module": {
+          "name": "identityserver"
+        }
+      },
+      "state": {
+        "enabled": false,
+        "editable": true
+      }
+    },
+    {
+      "target": "$consentPurpose",
+      "metadata": {
+        "label": "Consent Purpose",
+        "description": "Triggered when an event related to WSO2 Identity Server consent purpose is received. Available actions: onPurposeVersionAdded."
+      },
+      "source": {
+        "construct": {
+          "kind": "SERVICE_TYPE_DESCRIPTOR"
+        },
+        "argument": {
+          "originalName": "ConsentPurposeService"
+        },
+        "module": {
+          "name": "identityserver"
+        }
+      },
+      "state": {
+        "enabled": false,
+        "editable": true
+      }
+    },
+    {
+      "target": "$role",
+      "metadata": {
+        "label": "Role",
+        "description": "Triggered when an event related to WSO2 Identity Server role is received. Available actions: onRoleCreated, onRoleMetaUpdated, onRoleDeleted, onRoleUsersUpdated, onRoleGroupsUpdated, onRoleIdpGroupsUpdated, and onRolePermissionsUpdated."
+      },
+      "source": {
+        "construct": {
+          "kind": "SERVICE_TYPE_DESCRIPTOR"
+        },
+        "argument": {
+          "originalName": "RoleService"
+        },
+        "module": {
+          "name": "identityserver"
+        }
+      },
+      "state": {
+        "enabled": false,
+        "editable": true
+      }
+    },
+    {
+      "target": "$organization",
+      "metadata": {
+        "label": "Organization",
+        "description": "Triggered when an event related to WSO2 Identity Server organization is received. Available actions: onOrganizationCreated, onOrganizationUpdated, onOrganizationEnabled, onOrganizationDisabled, and onOrganizationDeleted."
+      },
+      "source": {
+        "construct": {
+          "kind": "SERVICE_TYPE_DESCRIPTOR"
+        },
+        "argument": {
+          "originalName": "OrganizationService"
+        },
+        "module": {
+          "name": "identityserver"
+        }
+      },
+      "state": {
+        "enabled": false,
+        "editable": true
+      }
+    }
+  ],
+  "artifactInfo": {
+    "displayLabel": "WSO2 Identity Server Event Integration",
+    "icon": {
+      "lightPath": "icons/light.svg",
+      "darkPath": "icons/dark.svg"
+    }
+  }
+}
