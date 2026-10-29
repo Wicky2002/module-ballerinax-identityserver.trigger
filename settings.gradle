@@ -32,6 +32,8 @@ rootProject.name = 'module-ballerinax-identityserver.trigger'
 include ':identityserver.trigger-ballerina'
 
 project(':identityserver.trigger-ballerina').projectDir = file("ballerina")
+include ':identityserver.trigger-compiler-plugin'
+project(':identityserver.trigger-compiler-plugin').projectDir = file("compiler-plugin")
 
 develocity {
     buildScan {
