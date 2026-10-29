@@ -1,25 +1,25 @@
 asyncapi: 3.0.0
-# The event is identified by the single key inside `events` (a URI), not by a field value. The generator
-# currently supports header, body and composite identifiers that read a value at a path; "body-key" is the
-# proposed mode that reads the key of the object at `path`. See sanitations.md.
+# The event is identified by the single key inside `events` (a URI), not by a field value.
 x-ballerina-event-identifier:
   type: body-key
   path: events
-# Deliveries carry `x-hub-signature: sha256=<hex>`, an HMAC-SHA256 of the raw body keyed with the webhook secret.
+# Deliveries are signed with `sha256=<hex>`, an HMAC-SHA256 of the raw body keyed with the webhook secret. WSO2
+# Identity Server sends it in `x-wso2-event-signature` and Asgardeo in `x-hub-signature`; the listener takes either.
 x-ballerina-auth:
-  header: x-hub-signature
+  header: x-wso2-event-signature
   signature:
     algorithm: sha256
     encoding: hex
     headerFormat: "sha256=$signature"
     input: "$body"
 info:
-  title: WSO2 Identity Platform Webhooks
+  title: WSO2 Identity Server Webhooks
   version: 1.0.0
   description: >-
-    Webhook events emitted by Asgardeo and WSO2 Identity Server. Each delivery is a Security Event Token (RFC 8417)
-    claim set sent as JSON over HTTP POST, with one event per delivery under `events`. Subscriptions are verified with a
-    WebSub GET handshake (`hub.challenge`) before delivery starts.
+    Webhook events emitted by WSO2 Identity Server 7.2 and later, and by Asgardeo. Each delivery is a Security Event
+    Token (RFC 8417) claim set sent as JSON over HTTP POST, with one event per delivery under `events`. Subscriptions are
+    verified with a WebSub GET handshake (`hub.challenge`) when a webhook is activated or deactivated. On Identity
+    Server, role, consent, consent-purpose and organization events need version 7.4 or later.
   externalDocs:
     description: Webhook events and payloads
     url: https://is.docs.wso2.com/en/next/guides/webhooks/webhook-events-and-payloads/
@@ -250,6 +250,56 @@ channels:
     bindings:
       http:
         method: POST
+  organization:
+    address: /
+    description: Events in the organization category.
+    messages:
+      organizationCreated:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/organization/event-type/organizationCreated
+        x-ballerina-event-label: OrganizationCreated
+        summary: Organization created.
+        payload:
+          $ref: '#/components/schemas/OrganizationCreatedEvent'
+      organizationUpdated:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/organization/event-type/organizationUpdated
+        x-ballerina-event-label: OrganizationUpdated
+        summary: Organization updated.
+        payload:
+          $ref: '#/components/schemas/OrganizationUpdatedEvent'
+      organizationEnabled:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/organization/event-type/organizationEnabled
+        x-ballerina-event-label: OrganizationEnabled
+        summary: Organization enabled.
+        payload:
+          $ref: '#/components/schemas/OrganizationEnabledEvent'
+      organizationDisabled:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/organization/event-type/organizationDisabled
+        x-ballerina-event-label: OrganizationDisabled
+        summary: Organization disabled.
+        payload:
+          $ref: '#/components/schemas/OrganizationDisabledEvent'
+      organizationDeleted:
+        x-ballerina-event-type: https://schemas.identity.wso2.org/events/organization/event-type/organizationDeleted
+        x-ballerina-event-label: OrganizationDeleted
+        summary: Organization deleted.
+        payload:
+          $ref: '#/components/schemas/OrganizationDeletedEvent'
+    bindings:
+      http:
+        method: POST
+  subscriptionVerification:
+    address: /
+    description: >-
+      The WebSub verification of intent Identity Server sends when a webhook is activated or deactivated, once per
+      subscribed event type. The listener answers it by echoing `hub.challenge`.
+    messages:
+      verificationReply:
+        summary: The `hub.challenge` value, returned as plain text.
+        payload:
+          type: string
+        bindings:
+          http:
+            statusCode: 200
 operations:
   login:
     action: receive
@@ -323,6 +373,51 @@ operations:
       - $ref: '#/channels/role/messages/roleGroupsUpdated'
       - $ref: '#/channels/role/messages/roleIdpGroupsUpdated'
       - $ref: '#/channels/role/messages/rolePermissionsUpdated'
+  organization:
+    action: receive
+    channel:
+      $ref: '#/channels/organization'
+    messages:
+      - $ref: '#/channels/organization/messages/organizationCreated'
+      - $ref: '#/channels/organization/messages/organizationUpdated'
+      - $ref: '#/channels/organization/messages/organizationEnabled'
+      - $ref: '#/channels/organization/messages/organizationDisabled'
+      - $ref: '#/channels/organization/messages/organizationDeleted'
+  verifyIntent:
+    action: receive
+    summary: WebSub verification of intent (https://www.w3.org/TR/websub/#hub-verifies-intent).
+    channel:
+      $ref: '#/channels/subscriptionVerification'
+    bindings:
+      http:
+        method: GET
+        query:
+          type: object
+          required:
+            - hub.mode
+            - hub.topic
+            - hub.challenge
+          properties:
+            hub.mode:
+              type: string
+              description: subscribe when the webhook is activated, unsubscribe when it is deactivated.
+              enum:
+                - subscribe
+                - unsubscribe
+            hub.topic:
+              type: string
+              description: The topic of one subscribed event type.
+            hub.challenge:
+              type: string
+              description: A random string the endpoint must return to confirm.
+            hub.lease_seconds:
+              type: integer
+              description: How long the subscription stays active, in seconds.
+    reply:
+      channel:
+        $ref: '#/channels/subscriptionVerification'
+      messages:
+        - $ref: '#/channels/subscriptionVerification/messages/verificationReply'
 components:
   schemas:
     InitiatorType:
@@ -1591,15 +1686,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -1619,15 +1714,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -1647,15 +1742,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -1675,15 +1770,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -1703,15 +1798,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -1731,15 +1826,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -1759,15 +1854,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -1787,15 +1882,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -1815,15 +1910,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -1843,15 +1938,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -1871,15 +1966,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -1899,15 +1994,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -1927,15 +2022,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -1955,15 +2050,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -1983,15 +2078,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -2011,15 +2106,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -2039,15 +2134,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -2067,15 +2162,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -2095,15 +2190,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -2123,15 +2218,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -2151,15 +2246,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -2179,15 +2274,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -2207,15 +2302,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -2235,15 +2330,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -2263,15 +2358,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -2291,15 +2386,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -2319,15 +2414,15 @@ components:
       properties:
         iss:
           type: string
-          description: Identifies the WSO2 Identity Platform instance that issued the event.
-          example: https://api.asgardeo.io/t/myorg
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
         jti:
           type: string
           description: A unique identifier for the event.
           example: 051f0c37-b689-44d4-b7d2-29b980ece273
         iat:
           type: integer
-          description: Timestamp showing when WSO2 Identity Platform issues the event. Epoch milliseconds.
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
           example: 1751705149662
         rci:
           type: string
@@ -2335,3 +2430,375 @@ components:
           example: 05268edb-9a87-4656-87c0-0fb674dd03b1
         events:
           $ref: '#/components/schemas/EventData_RolePermissionsUpdated'
+    OrganizationAttribute:
+      type: object
+      description: A custom attribute of an organization.
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Name of the attribute.
+          example: Country
+        value:
+          type: string
+          description: Value of the attribute. Absent for a removed attribute.
+          example: USA
+    OrganizationAttributeChanges:
+      type: object
+      description: Attributes added, removed or updated by the operation.
+      properties:
+        added:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationAttribute'
+        removed:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationAttribute'
+        updated:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationAttribute'
+    TargetOrganization:
+      type: object
+      description: The organization the operation acted on.
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the organization.
+          example: 5f837960-52e0-4b43-9501-3a00c0a50378
+        name:
+          type: string
+          description: Name of the organization.
+          example: ABC Builders
+        orgHandle:
+          type: string
+          description: Unique, human-readable handle of the organization.
+          example: abcbuilders
+        depth:
+          type: integer
+          description: The depth of the organization in the hierarchy.
+          example: 1
+        ref:
+          type: string
+          description: Organization management API reference URL for the organization. Absent once it is deleted.
+    CreatedTargetOrganization:
+      type: object
+      description: The organization that was created.
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the organization.
+          example: b537b54f-ec3d-452b-a20d-fc99f90a351a
+        name:
+          type: string
+          description: Name of the organization.
+          example: ABC Builders
+        orgHandle:
+          type: string
+          description: Unique, human-readable handle of the organization.
+          example: b537b54f-ec3d-452b-a20d-fc99f90a351a
+        depth:
+          type: integer
+          description: The depth of the organization in the hierarchy.
+          example: 1
+        ref:
+          type: string
+          description: Organization management API reference URL for the organization.
+        attributes:
+          $ref: '#/components/schemas/OrganizationAttributeChanges'
+    OrganizationUpdatedValues:
+      type: object
+      description: The values the update set. Only the changed values are present.
+      properties:
+        name:
+          type: string
+          description: The new name of the organization.
+          example: ABC Builders updated
+        description:
+          type: string
+          description: The new description of the organization.
+          example: Building constructions
+        attributes:
+          $ref: '#/components/schemas/OrganizationAttributeChanges'
+    UpdatedTargetOrganization:
+      type: object
+      description: The organization that was updated.
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the organization.
+          example: 8df67d89-82bf-4ab0-802d-c9ae9a57c5f6
+        name:
+          type: string
+          description: Name of the organization.
+          example: ABC Builders updated
+        orgHandle:
+          type: string
+          description: Unique, human-readable handle of the organization.
+          example: 8df67d89-82bf-4ab0-802d-c9ae9a57c5f6
+        depth:
+          type: integer
+          description: The depth of the organization in the hierarchy.
+          example: 1
+        ref:
+          type: string
+          description: Organization management API reference URL for the organization.
+        updatedValues:
+          $ref: '#/components/schemas/OrganizationUpdatedValues'
+    OrganizationCreatedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        action:
+          $ref: '#/components/schemas/Action'
+        targetOrganization:
+          $ref: '#/components/schemas/CreatedTargetOrganization'
+    EventData_OrganizationCreated:
+      title: Organization created
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/organization/event-type/organizationCreated
+      properties:
+        https://schemas.identity.wso2.org/events/organization/event-type/organizationCreated:
+          $ref: '#/components/schemas/OrganizationCreatedPayload'
+    OrganizationCreatedEvent:
+      type: object
+      description: Organization created event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_OrganizationCreated'
+    OrganizationUpdatedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        action:
+          $ref: '#/components/schemas/Action'
+        targetOrganization:
+          $ref: '#/components/schemas/UpdatedTargetOrganization'
+    EventData_OrganizationUpdated:
+      title: Organization updated
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/organization/event-type/organizationUpdated
+      properties:
+        https://schemas.identity.wso2.org/events/organization/event-type/organizationUpdated:
+          $ref: '#/components/schemas/OrganizationUpdatedPayload'
+    OrganizationUpdatedEvent:
+      type: object
+      description: Organization updated event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_OrganizationUpdated'
+    OrganizationEnabledPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        action:
+          $ref: '#/components/schemas/Action'
+        targetOrganization:
+          $ref: '#/components/schemas/TargetOrganization'
+    EventData_OrganizationEnabled:
+      title: Organization enabled
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/organization/event-type/organizationEnabled
+      properties:
+        https://schemas.identity.wso2.org/events/organization/event-type/organizationEnabled:
+          $ref: '#/components/schemas/OrganizationEnabledPayload'
+    OrganizationEnabledEvent:
+      type: object
+      description: Organization enabled event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_OrganizationEnabled'
+    OrganizationDisabledPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        action:
+          $ref: '#/components/schemas/Action'
+        targetOrganization:
+          $ref: '#/components/schemas/TargetOrganization'
+    EventData_OrganizationDisabled:
+      title: Organization disabled
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/organization/event-type/organizationDisabled
+      properties:
+        https://schemas.identity.wso2.org/events/organization/event-type/organizationDisabled:
+          $ref: '#/components/schemas/OrganizationDisabledPayload'
+    OrganizationDisabledEvent:
+      type: object
+      description: Organization disabled event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_OrganizationDisabled'
+    OrganizationDeletedPayload:
+      type: object
+      properties:
+        initiatorType:
+          $ref: '#/components/schemas/InitiatorType'
+        initiatorIpAddress:
+          $ref: '#/components/schemas/InitiatorIpAddress'
+        tenant:
+          $ref: '#/components/schemas/Tenant'
+        organization:
+          $ref: '#/components/schemas/Organization'
+        action:
+          $ref: '#/components/schemas/Action'
+        targetOrganization:
+          $ref: '#/components/schemas/TargetOrganization'
+    EventData_OrganizationDeleted:
+      title: Organization deleted
+      type: object
+      required:
+        - https://schemas.identity.wso2.org/events/organization/event-type/organizationDeleted
+      properties:
+        https://schemas.identity.wso2.org/events/organization/event-type/organizationDeleted:
+          $ref: '#/components/schemas/OrganizationDeletedPayload'
+    OrganizationDeletedEvent:
+      type: object
+      description: Organization deleted event. The payload is a Security Event Token (RFC 8417) claim set.
+      required:
+        - iss
+        - jti
+        - rci
+        - iat
+        - events
+      properties:
+        iss:
+          type: string
+          description: Identifies the WSO2 Identity Server instance that issued the event.
+          example: https://localhost:9443/t/myorg.com
+        jti:
+          type: string
+          description: A unique identifier for the event.
+          example: 051f0c37-b689-44d4-b7d2-29b980ece273
+        iat:
+          type: integer
+          description: Timestamp showing when WSO2 Identity Server issues the event. Epoch milliseconds.
+          example: 1751705149662
+        rci:
+          type: string
+          description: A unique identifier that correlates the event with the original request that triggered it.
+          example: 05268edb-9a87-4656-87c0-0fb674dd03b1
+        events:
+          $ref: '#/components/schemas/EventData_OrganizationDeleted'
