@@ -160,7 +160,8 @@ service wso2is:LoginService on isListener {
 ### Step 4: Provide remote functions corresponding to the events you're interested in
 
 Remote functions must be implemented inside a service, on the matching service type for the event
-category - for example, `wso2is:UserService` for user events.
+category - for example, `wso2is:UserService` for user events. The service below replaces the
+`LoginService` from Step 3: a listener takes only one service of each type on the same path.
 
 ```ballerina
 import ballerina/log;

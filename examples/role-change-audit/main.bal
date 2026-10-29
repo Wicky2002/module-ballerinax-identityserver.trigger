@@ -1,13 +1,12 @@
 import ballerina/log;
 import ballerinax/identityserver.trigger as wso2is;
 
-configurable wso2is:ListenerConfig config = {
-    webhookSecret: "xxxxxx"
-};
+// webhookSecret is the secret set on the webhook in the Console, read from Config.toml.
+configurable wso2is:ListenerConfig config = ?;
 
 listener wso2is:Listener isListener = new (config, 8090);
 
-// Writes one audit line per role change: who made it, which role, and what was added or removed.
+// Writes one audit line per role change: which role, the kind of actor, and what was added or removed.
 service wso2is:RoleService on isListener {
 
     remote function onRoleCreated(wso2is:RoleCreatedEvent payload) returns error? {

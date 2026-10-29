@@ -1,9 +1,8 @@
 import ballerina/log;
 import ballerinax/identityserver.trigger as wso2is;
 
-configurable wso2is:ListenerConfig config = {
-    webhookSecret: "xxxxxx"
-};
+// webhookSecret is the secret set on the webhook in the Console, read from Config.toml.
+configurable wso2is:ListenerConfig config = ?;
 
 listener wso2is:Listener isListener = new (config, 8090);
 

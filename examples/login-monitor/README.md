@@ -4,6 +4,15 @@ The minimal, canonical `identityserver.trigger` use case: log every successful l
 
 ## Run
 
+Put the webhook's secret in a `Config.toml` in this directory:
+
+```toml
+[ballerina_example.login_monitor.config]
+webhookSecret = "<the webhook secret>"
+```
+
+Then run:
+
 ```bash
 bal run
 ```
