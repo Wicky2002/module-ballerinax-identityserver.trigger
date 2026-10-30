@@ -73,7 +73,7 @@ The `Registrations`, `User_Operations`, `Logins` and `Notifications` triggers of
 From the repository root:
 
 ```bash
-bal asyncapi docs/spec/asyncapi.yaml --protocol http --with-tests -o ballerina/
+bal asyncapi docs/spec/asyncapi.yaml --protocol http --with-tests -o ballerina/ --force
 ```
 
 Then re-apply the [hand edit](#hand-edit) and run `bal test` in `ballerina/`.
