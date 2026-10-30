@@ -41,13 +41,23 @@ function testAsgardeoSignatureHeaderIsAccepted() returns error? {
 
 @test:Config {}
 function testWrongSignatureInAsgardeoHeaderIsRejected() returns error? {
+    lock {
+        triggerFired.removeAll();
+    }
     http:Response response = check sendWithHeader("x-hub-signature", "loginSuccess", "another-secret");
     test:assertEquals(response.statusCode, http:STATUS_UNAUTHORIZED);
+    test:assertFalse(waitForDispatch("LoginService.onLoginSuccess"),
+            "a rejected event should not reach the handler");
 }
 
 @test:Config {}
 function testRequestWithoutEitherHeaderIsRejected() returns error? {
+    lock {
+        triggerFired.removeAll();
+    }
     byte[] body = check io:fileReadBytes(string `${TRIGGER_PAYLOAD_DIR}/loginSuccess.json`);
     http:Response response = check triggerClient->post("/", body, (), "application/json");
     test:assertEquals(response.statusCode, http:STATUS_UNAUTHORIZED);
+    test:assertFalse(waitForDispatch("LoginService.onLoginSuccess"),
+            "a rejected event should not reach the handler");
 }
