@@ -1,0 +1,55 @@
+{
+  "iss": "{{server_url}}",
+  "jti": "9befa02f-6977-472a-8450-09c391b6ba45",
+  "iat": 1783322160021,
+  "rci": "accdbb61-d005-41ab-8760-58fd7a539bf9",
+  "events": {
+    "https://schemas.identity.wso2.org/events/role/event-type/roleCreated": {
+      "initiatorType": "ADMIN",
+      "initiatorIpAddress": "127.0.0.1",
+      "tenant": {
+        "id": "12402",
+        "name": "{{tenant_domain}}"
+      },
+      "organization": {
+        "id": "10084a8d-113f-4211-a0d5-efe36b082211",
+        "name": "myorg",
+        "orgHandle": "{{tenant_domain}}",
+        "depth": 0
+      },
+      "action": "ROLE_CREATE",
+      "role": {
+        "id": "1fad5996-3418-4883-925d-a319e3bb8e72",
+        "name": "ROLE",
+        "audience": {
+          "type": "application",
+          "value": "6db0975b-9f7c-42d1-a8b4-895a77d23cff",
+          "display": "Sample Application"
+        },
+        "ref": "{{host_url}}/scim2/v2/Roles/1fad5996-3418-4883-925d-a319e3bb8e72",
+        "users": [
+          {
+            "id": "6c7f23d9-8083-4bf7-ab2c-885aa9faa186",
+            "userStoreDomain": "{{userstore_domain}}",
+            "claims": [
+              {
+                "uri": "http://wso2.org/claims/username",
+                "value": "abcuser"
+              }
+            ]
+          }
+        ],
+        "groups": [
+          {
+            "id": "da2aeb94-aebf-4846-b611-1865cf85aea5",
+            "groupName": "sales",
+            "userStoreDomain": "{{userstore_domain}}"
+          }
+        ],
+        "permissions": [
+          "internal_session_view"
+        ]
+      }
+    }
+  }
+}

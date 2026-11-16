@@ -1,0 +1,43 @@
+{
+  "iss": "https://localhost:9443/t/myorg.com",
+  "jti": "5ab9d903-a718-4e71-9a16-314203f02778",
+  "iat": 1755619049121,
+  "rci": "24b22c09-ae39-4942-896f-5c14fd18b4e0",
+  "events": {
+    "https://schemas.identity.wso2.org/events/user/event-type/userAccountLocked": {
+      "initiatorType": "ADMIN",
+      "initiatorIpAddress": "203.0.113.10",
+      "user": {
+        "id": "3987d74e-8432-4f4d-b1a8-cad463af843d",
+        "claims": [
+          {
+            "uri": "http://wso2.org/claims/emailaddress",
+            "value": "johndoe@aol.com"
+          }
+        ],
+        "organization": {
+          "id": "10084a8d-113f-4211-a0d5-efe36b082211",
+          "name": "myorg",
+          "orgHandle": "myorg.com",
+          "depth": 0
+        },
+        "ref": "https://localhost:9443/t/myorg.com/scim2/Users/3987d74e-8432-4f4d-b1a8-cad463af843d"
+      },
+      "tenant": {
+        "id": "12402",
+        "name": "myorg.com"
+      },
+      "organization": {
+        "id": "10084a8d-113f-4211-a0d5-efe36b082211",
+        "name": "myorg",
+        "orgHandle": "myorg.com",
+        "depth": 0
+      },
+      "userStore": {
+        "id": "UFJJTUFSWQ==",
+        "name": "PRIMARY"
+      },
+      "action": "USER_ACCOUNT_LOCK"
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "iss": "https://localhost:9443/t/myorg.com",
+  "jti": "1a9b7a5f-42f3-4f87-a03d-6962b32a219b",
+  "iat": 1755541960053,
+  "rci": "b8b6ccbd-69b0-47d3-b0ae-b2b0df085f7c",
+  "events": {
+    "https://schemas.identity.wso2.org/events/session/event-type/sessionEstablished": {
+      "initiatorType": "USER",
+      "initiatorIpAddress": "203.0.113.10",
+      "user": {
+        "id": "1801d35e-1339-4c16-9c53-61321cf37fb9",
+        "claims": [
+          {
+            "uri": "http://wso2.org/claims/username",
+            "value": "peter"
+          }
+        ],
+        "organization": {
+          "id": "10084a8d-113f-4211-a0d5-efe36b082211",
+          "name": "myorg",
+          "orgHandle": "myorg.com",
+          "depth": 0
+        },
+        "ref": "https://localhost:9443/t/myorg.com/scim2/Users/1801d35e-1339-4c16-9c53-61321cf37fb9"
+      },
+      "tenant": {
+        "id": "12402",
+        "name": "myorg.com"
+      },
+      "organization": {
+        "id": "10084a8d-113f-4211-a0d5-efe36b082211",
+        "name": "myorg",
+        "orgHandle": "myorg.com",
+        "depth": 0
+      },
+      "userStore": {
+        "id": "UFJJTUFSWQ==",
+        "name": "PRIMARY"
+      },
+      "application": {
+        "id": "eb395ddd-1280-46e9-98fb-810948c1dab4",
+        "name": "Test App"
+      },
+      "session": {
+        "id": "68d1f2861461c69d8e821d91839bbf8e23ef04fb96c1ac655f452d94d1fd6e4d",
+        "loginTime": 1755541960025,
+        "applications": [
+          {
+            "id": "eb395ddd-1280-46e9-98fb-810948c1dab4",
+            "name": "Test App"
+          }
+        ]
+      },
+      "action": "LOGIN"
+    }
+  }
+}

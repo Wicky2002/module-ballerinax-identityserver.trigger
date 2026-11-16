@@ -1,0 +1,11 @@
+[package]
+distribution = "2201.13.0"
+org = "ballerinax"
+name = "identityserver.trigger"
+version = "1.0.0"
+license = ["Apache-2.0"]
+authors = ["Ballerina"]
+keywords = ["Name/WSO2 Identity Server Trigger", "Area/Security & Identity", "Vendor/WSO2", "Cost/Freemium", "Type/Trigger"]
+icon = "icon.png"
+repository = "https://github.com/ballerina-platform/module-ballerinax-identityserver.trigger"
+include = ["metadata/**"]
