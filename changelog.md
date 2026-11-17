@@ -4,7 +4,7 @@ This file contains all the notable changes done to the Ballerina WSO2 Identity S
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0]
+## [0.9.0]
 
 ### Added
 - The `identityserver.trigger` package for the webhooks of WSO2 Identity Server and Asgardeo, replacing `trigger.asgardeo` from the `asyncapi-triggers` monorepo. It is generated from the AsyncAPI definition in `docs/spec` with the Ballerina AsyncAPI tool and covers 32 events. See the [migration notes](docs/migration-notes.md) for what changed from `trigger.asgardeo`.
