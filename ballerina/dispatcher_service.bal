@@ -344,7 +344,7 @@ service class DispatcherService {
         GenericServiceType? genericService = self.services[serviceTypeStr];
         if genericService is GenericServiceType {
             any boundEvent = check self.nativeHandler.bindEventPayload(genericService, eventFunction, payload);
-            check self.nativeHandler.invokeRemoteFunction(boundEvent, eventName, eventFunction, genericService);
+            check self.nativeHandler.invokeRemoteFunction(boundEvent, eventName, eventFunction, <object {}>genericService);
         } else {
             log:printDebug("SERVICE_NOT_ATTACHED", serviceType = serviceTypeStr, eventName = eventName);
         }
