@@ -4,6 +4,11 @@ This file contains all the notable changes done to the Ballerina WSO2 Identity S
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1]
+
+### Fixed
+- The dispatcher checks the attached service against the native handler once, which fixes a compile error in builds with `--graalvm` ([asyncapi-tools#267](https://github.com/ballerina-platform/asyncapi-tools/pull/267)). Regenerated with the AsyncAPI tool 0.14.0.
+
 ## [1.0.0]
 
 ### Added
